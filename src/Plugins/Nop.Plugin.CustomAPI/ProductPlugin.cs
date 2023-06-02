@@ -12,7 +12,6 @@ namespace Nop.Plugin.CustomAPI
 
         public override async Task UninstallAsync()
         {
-
             await base.UninstallAsync();
         }
     }
