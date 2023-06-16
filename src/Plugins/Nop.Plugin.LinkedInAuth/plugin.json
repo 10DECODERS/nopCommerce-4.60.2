@@ -1,0 +1,11 @@
+﻿{
+  "Group": "ExternalAuth methods",
+  "FriendlyName": "LinkedIn authentication",
+  "SystemName": "LinkedInAuth",
+  "Version": "1.80",
+  "SupportedVersions": [ "4.60" ],
+  "Author": "nopCommerce team",
+  "DisplayOrder": 5,
+  "FileName": "Nop.Plugin.LinkedInAuth.dll",
+  "Description": "This plugin enables LinkedIn authentication (login using LinkedIn account)"
+}
