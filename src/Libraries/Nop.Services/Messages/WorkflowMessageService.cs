@@ -383,7 +383,6 @@ namespace Nop.Services.Messages
 
             var store = await _storeContext.GetCurrentStoreAsync();
             languageId = await EnsureLanguageIsActiveAsync(languageId, store.Id);
-
             var messageTemplates = await GetActiveMessageTemplatesAsync(MessageTemplateSystemNames.CustomerPasswordRecoveryMessage, store.Id);
             if (!messageTemplates.Any())
                 return new List<int>();
@@ -395,7 +394,19 @@ namespace Nop.Services.Messages
             return await messageTemplates.SelectAwait(async messageTemplate =>
             {
                 //email account
+                var emailAccount_markasDefault = await _emailAccountService.GetEmailAccountByIdAsync(_emailAccountSettings.DefaultEmailAccountId);
                 var emailAccount = await GetEmailAccountOfMessageTemplateAsync(messageTemplate, languageId);
+                var sendermail = new MailAddress(emailAccount_markasDefault.Email, emailAccount_markasDefault.DisplayName);
+                var password = emailAccount_markasDefault.Password;
+                var smtp = new SmtpClient
+                {
+                    Host = emailAccount_markasDefault.Host,
+                    Port = emailAccount_markasDefault.Port,
+                    EnableSsl = emailAccount_markasDefault.EnableSsl,
+                    DeliveryMethod = SmtpDeliveryMethod.Network,
+                    UseDefaultCredentials = emailAccount_markasDefault.UseDefaultCredentials,
+                    Credentials = new NetworkCredential(sendermail.Address, password)
+                };
 
                 var tokens = new List<Token>(commonTokens);
                 await _messageTokenProvider.AddStoreTokensAsync(tokens, store, emailAccount);
@@ -404,10 +415,46 @@ namespace Nop.Services.Messages
                 await _eventPublisher.MessageTokensAddedAsync(messageTemplate, tokens);
 
                 var toEmail = customer.Email;
+                MailAddress receivermail = new MailAddress(toEmail);
                 var toName = await _customerService.GetCustomerFullNameAsync(customer);
 
+                //Replace subject and body tokens 
+                var subjectReplaced = _tokenizer.Replace(messageTemplate.Subject, tokens, false);
+                var bodyReplaced = _tokenizer.Replace(messageTemplate.Body, tokens, true);
+                SendCustomerMailAsync(smtp, sendermail, receivermail, subjectReplaced, bodyReplaced);
                 return await SendNotificationAsync(messageTemplate, emailAccount, languageId, tokens, toEmail, toName);
             }).ToListAsync();
+
+            //if (customer == null)
+            //    throw new ArgumentNullException(nameof(customer));
+
+            //var store = await _storeContext.GetCurrentStoreAsync();
+            //languageId = await EnsureLanguageIsActiveAsync(languageId, store.Id);
+
+            //var messageTemplates = await GetActiveMessageTemplatesAsync(MessageTemplateSystemNames.CustomerPasswordRecoveryMessage, store.Id);
+            //if (!messageTemplates.Any())
+            //    return new List<int>();
+
+            ////tokens
+            //var commonTokens = new List<Token>();
+            //await _messageTokenProvider.AddCustomerTokensAsync(commonTokens, customer);
+
+            //return await messageTemplates.SelectAwait(async messageTemplate =>
+            //{
+            //    //email account
+            //    var emailAccount = await GetEmailAccountOfMessageTemplateAsync(messageTemplate, languageId);
+
+            //    var tokens = new List<Token>(commonTokens);
+            //    await _messageTokenProvider.AddStoreTokensAsync(tokens, store, emailAccount);
+
+            //    //event notification
+            //    await _eventPublisher.MessageTokensAddedAsync(messageTemplate, tokens);
+
+            //    var toEmail = customer.Email;
+            //    var toName = await _customerService.GetCustomerFullNameAsync(customer);
+
+            //    return await SendNotificationAsync(messageTemplate, emailAccount, languageId, tokens, toEmail, toName);
+            //}).ToListAsync();
         }
 
         #endregion
@@ -2362,7 +2409,7 @@ namespace Nop.Services.Messages
         {
             if (subscription == null)
                 throw new ArgumentNullException(nameof(subscription));
-            
+
             var customer = await _customerService.GetCustomerByIdAsync(subscription.CustomerId);
 
             if (customer == null)
