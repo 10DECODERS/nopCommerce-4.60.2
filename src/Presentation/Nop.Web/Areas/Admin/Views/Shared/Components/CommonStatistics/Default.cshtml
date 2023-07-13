@@ -3,7 +3,7 @@
 @inject Nop.Services.Common.IGenericAttributeService genericAttributeService
 @inject IWorkContext workContext
 @{
-    const string cardId = "nopcommerce-common-statistics-card";
+    const string cardId = "lumaworld-common-statistics-card";
     const string hideCardAttributeName = "HideCommonStatisticsCard";
     var hideCard = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideCardAttributeName);
 }
