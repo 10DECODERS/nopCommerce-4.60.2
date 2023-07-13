@@ -1,16 +1,46 @@
 ﻿@model AddressModel
+<style>
+    #ScanInput {
+        width: 400px;
+        height: 36px;
+        border: 1px solid #ddd;
+        padding: 8px;
+        vertical-align: middle;
+    }
 
-<input class="address-id" asp-for="Id" type="hidden"/>
+
+
+    #ZipInput {
+        width: 400px;
+        height: 36px;
+        border: 1px solid #ddd;
+        padding: 8px;
+        vertical-align: middle;
+    }
+
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+
+
+
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+</style>
+<input class="address-id" asp-for="Id" type="hidden" />
 <div class="edit-address">
     <div class="inputs">
         <label asp-for="FirstName" asp-postfix=":"></label>
-        <input asp-for="FirstName" />
+        <input asp-for="FirstName" minlength="3" maxlength="15" />
         <nop-required />
         <span asp-validation-for="FirstName"></span>
     </div>
     <div class="inputs">
         <label asp-for="LastName" asp-postfix=":"></label>
-        <input asp-for="LastName" />
+        <input asp-for="LastName" maxlength="15" />
         <nop-required />
         <span asp-validation-for="LastName"></span>
     </div>
@@ -24,7 +54,7 @@
     {
         <div class="inputs">
             <label asp-for="Company" asp-postfix=":"></label>
-            <input asp-for="Company" />
+            <input asp-for="Company" maxlength="20" />
             @if (Model.CompanyRequired)
             {
                 <nop-required />
@@ -37,21 +67,23 @@
         <div class="inputs">
             <label asp-for="CountryId" asp-postfix=":"></label>
             <select asp-for="CountryId" asp-items="Model.AvailableCountries"
-                    data-trigger="country-select"
-                    data-url="@(Url.RouteUrl("GetStatesByCountryId"))"
-                    data-stateprovince="#@Html.IdFor(model => model.StateProvinceId)"
-                    data-loading="#states-loading-progress"></select>
+                data-trigger="country-select"
+                data-url="@(Url.RouteUrl("GetStatesByCountryId"))"
+                data-stateprovince="#@Html.IdFor(model => model.StateProvinceId)"
+                data-loading="#states-loading-progress"></select>
             <nop-required />
             <span asp-validation-for="CountryId"></span>
         </div>
     }
+
+
 
     @if (Model.CountryEnabled && Model.StateProvinceEnabled)
     {
         <div class="inputs">
             <label asp-for="StateProvinceId" asp-postfix=":"></label>
             <select asp-for="StateProvinceId" asp-items="Model.AvailableStates"
-                    data-trigger="state-select">
+                data-trigger="state-select">
             </select>
             <span id="states-loading-progress" style="display: none;" class="please-wait">@T("Common.Wait")</span>
             <span asp-validation-for="StateProvinceId"></span>
@@ -109,7 +141,7 @@
     {
         <div class="inputs">
             <label asp-for="ZipPostalCode" asp-postfix=":"></label>
-            <input asp-for="ZipPostalCode" />
+            <input asp-for="ZipPostalCode" id="ZipInput" type="number" maxlength="10" />
             @if (Model.ZipPostalCodeRequired)
             {
                 <nop-required />
@@ -121,7 +153,7 @@
     {
         <div class="inputs">
             <label asp-for="PhoneNumber" asp-postfix=":"></label>
-            <input asp-for="PhoneNumber" />
+            <input asp-for="PhoneNumber" type="number" id="ScanInput" maxlength="15" />
             @if (Model.PhoneRequired)
             {
                 <nop-required />
@@ -133,7 +165,7 @@
     {
         <div class="inputs">
             <label asp-for="FaxNumber" asp-postfix=":"></label>
-            <input asp-for="FaxNumber" />
+            <input asp-for="FaxNumber" maxlength="15" />
             @if (Model.FaxRequired)
             {
                 <nop-required />
@@ -147,3 +179,26 @@
     }
     @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.AddressBottom, additionalData = Model })
 </div>
+<script>
+
+
+
+    //Maxlength Restriction for Phone Number
+    var inputField = document.getElementById("ScanInput");
+    inputField.addEventListener("input", function () {
+        if (inputField.value.length > 15) {
+            inputField.value = inputField.value.slice(0, 15);
+        }
+    });
+
+
+
+    //Maxlength Restriction for Zip
+    var Zip_inputField = document.getElementById("ZipInput");
+    Zip_inputField.addEventListener("input", function () {
+        console.log("entry");
+        if (Zip_inputField.value.length > 10) {
+            Zip_inputField.value = Zip_inputField.value.slice(0, 10);
+        }
+    });
+</script>
