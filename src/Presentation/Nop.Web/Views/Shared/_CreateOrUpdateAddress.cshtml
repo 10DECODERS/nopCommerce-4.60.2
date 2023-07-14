@@ -1,4 +1,5 @@
-﻿@model AddressModel
+@model AddressModel
+
 <style>
     #ScanInput {
         width: 400px;
@@ -30,6 +31,7 @@
         margin: 0;
     }
 </style>
+
 <input class="address-id" asp-for="Id" type="hidden" />
 <div class="edit-address">
     <div class="inputs">
@@ -46,10 +48,23 @@
     </div>
     <div class="inputs">
         <label asp-for="Email" asp-postfix=":"></label>
-        <input asp-for="Email" />
+        <input id="Email" asp-for="Email" onblur="validateEmail()" class="email" />
         <nop-required />
-        <span asp-validation-for="Email"></span>
+        @*<span asp-validation-for="Email"></span>*@
     </div>
+    <span id="emailError" style="color: #e4434b; margin-bottom: 2px; margin-left: 7%;"></span>
+    <script>
+        function validateEmail() {
+            var email = document.getElementById("Email").value;
+            var lblError = document.getElementById("emailError");
+            lblError.innerHTML = "";
+            var expr = /^\w+([\.-]?\w+)*@@\w+([\.-]?\w+)*(\.\w{2,3})+$/;  // Fixed regular expression
+            if (!expr.test(email)) {
+                console.log("Invalid");
+                lblError.innerHTML = "Invalid email address.";
+            }
+        }
+    </script>
     @if (Model.CompanyEnabled)
     {
         <div class="inputs">
@@ -67,23 +82,21 @@
         <div class="inputs">
             <label asp-for="CountryId" asp-postfix=":"></label>
             <select asp-for="CountryId" asp-items="Model.AvailableCountries"
-                data-trigger="country-select"
-                data-url="@(Url.RouteUrl("GetStatesByCountryId"))"
-                data-stateprovince="#@Html.IdFor(model => model.StateProvinceId)"
-                data-loading="#states-loading-progress"></select>
+                    data-trigger="country-select"
+                    data-url="@(Url.RouteUrl("GetStatesByCountryId"))"
+                    data-stateprovince="#@Html.IdFor(model => model.StateProvinceId)"
+
+                    data-loading="#states-loading-progress"></select>
             <nop-required />
             <span asp-validation-for="CountryId"></span>
         </div>
     }
-
-
-
     @if (Model.CountryEnabled && Model.StateProvinceEnabled)
     {
         <div class="inputs">
             <label asp-for="StateProvinceId" asp-postfix=":"></label>
             <select asp-for="StateProvinceId" asp-items="Model.AvailableStates"
-                data-trigger="state-select">
+                    data-trigger="state-select">
             </select>
             <span id="states-loading-progress" style="display: none;" class="please-wait">@T("Common.Wait")</span>
             <span asp-validation-for="StateProvinceId"></span>
@@ -180,9 +193,6 @@
     @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.AddressBottom, additionalData = Model })
 </div>
 <script>
-
-
-
     //Maxlength Restriction for Phone Number
     var inputField = document.getElementById("ScanInput");
     inputField.addEventListener("input", function () {
@@ -190,9 +200,6 @@
             inputField.value = inputField.value.slice(0, 15);
         }
     });
-
-
-
     //Maxlength Restriction for Zip
     var Zip_inputField = document.getElementById("ZipInput");
     Zip_inputField.addEventListener("input", function () {

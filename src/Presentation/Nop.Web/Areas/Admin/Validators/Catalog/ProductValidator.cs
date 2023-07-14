@@ -15,7 +15,9 @@ namespace Nop.Web.Areas.Admin.Validators.Catalog
             RuleFor(x => x.Name)
                 .NotEmpty()
                 .WithMessageAwait(localizationService.GetResourceAsync("Admin.Catalog.Products.Fields.Name.Required"));
-            
+            RuleFor(x => x.Sku)
+                .NotEmpty()
+                .WithMessageAwait(localizationService.GetResourceAsync("Sku value is Required"));
             RuleFor(x => x.SeName)
                 .Length(0, NopSeoDefaults.SearchEngineNameLength)
                 .WithMessageAwait(localizationService.GetResourceAsync("Admin.SEO.SeName.MaxLengthValidation"), NopSeoDefaults.SearchEngineNameLength);
