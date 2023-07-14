@@ -15,7 +15,7 @@ namespace Nop.Plugin.Widgets.AccessiBe
         /// <summary>
         /// Gets the user agent used to request third-party services
         /// </summary>
-        public static string UserAgent => $"nopcommerce-{NopVersion.CURRENT_VERSION}";
+        public static string UserAgent => $"lumaworld-{NopVersion.CURRENT_VERSION}";
 
         /// <summary>
         /// Gets the configuration route name

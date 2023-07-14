@@ -124,7 +124,7 @@ namespace Nop.Services.Common
         /// {3} : store URL
         /// {4} : language code
         /// </remarks>
-        public static string NopNewsRssPath => "nopcommerce-news-rss?version={0}&localhost={1}&hideAdvertisements={2}&storeUrl={3}&language={4}";
+        public static string NopNewsRssPath => "lumaworld-news-rss?version={0}&localhost={1}&hideAdvertisements={2}&storeUrl={3}&language={4}";
 
         /// <summary>
         /// Gets a path to request the nopCommerce official site to notify about successful installation
