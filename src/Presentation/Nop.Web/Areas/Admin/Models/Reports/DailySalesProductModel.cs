@@ -18,6 +18,10 @@ namespace Nop.Web.Areas.Admin.Models.Reports
         public string Name { get; set; } 
         public decimal Price { get; set; } 
         public decimal PriceDifference { get; set; }
+
+        public decimal OriginalCost { get; set; }
+
+        public int Quantity { get; set; }
         public  DateTime Date { get; set; }
         public string FormattedDate => Date.ToString("MM/dd/yyyy");
 

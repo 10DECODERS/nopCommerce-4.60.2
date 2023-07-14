@@ -35,8 +35,6 @@ namespace Nop.Web.Areas.Admin.Models.Reports
         [NopResourceDisplayName("Admin.Reports.SalesSummary.Product")]
         public int ProductId { get; set; }
 
-      
-
         public IList<SelectListItem> AvailableVendors { get; set; }
 
 
