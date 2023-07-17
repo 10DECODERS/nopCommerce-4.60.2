@@ -403,11 +403,12 @@ namespace Nop.Web.Areas.Admin.Factories
                                  orderItem.OrderId,
                                  orderItem.ProductId,
                                  orderItem.OriginalProductCost,
+                                 orderItem.Quantity,
                                  product.VendorId,
                                  product.Name,
-                                 product.Price,
+                                 OriginalCost = (orderItem.Quantity * product.Price),
                                  order.CreatedOnUtc,
-                                 PriceDifference = product.Price - orderItem.OriginalProductCost
+                                 PriceDifference = (product.Price - orderItem.OriginalProductCost) * orderItem.Quantity
                              };
 
             if (searchModel.Date != null)
@@ -438,11 +439,12 @@ namespace Nop.Web.Areas.Admin.Factories
                     Date = result.CreatedOnUtc.Date,
                     OrderId =  result.OrderId,
                     Name = result.Name,
-                    Price = result.Price,
+                    Price = result.OriginalCost,
                     ProductId = result.ProductId,
                     OriginalProductCost = result.OriginalProductCost,
                     VendorId = result.VendorId,
-                    PriceDifference = result.PriceDifference
+                    PriceDifference = result.PriceDifference,
+                    Quantity = result.Quantity,
                 }).ToListAsync());
 
 
