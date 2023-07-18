@@ -2,7 +2,7 @@
 
 @using Nop.Core.Domain.Catalog
 
-@{    
+@{
     Layout = "_ColumnsTwo";
 
     //title
@@ -12,7 +12,7 @@
     NopHtml.AppendPageCssClassParts("html-back-in-stock-subscription-list-page");
 }
 @section left
-{
+    {
     @await Component.InvokeAsync(typeof(CustomerNavigationViewComponent), new { selectedTabId = CustomerNavigationEnum.BackInStockSubscriptions })
 }
 <div class="page account-page back-in-stock-subscription-list-page">
@@ -47,28 +47,37 @@
                                 <col />
                             </colgroup>
                             <thead>
-                            <tr>
-                                <th class="select-boxes">
-                                    <input type="checkbox" id="selectall" />
-                                </th>
-                                <th class="product">
-                                    @T("Account.BackInStockSubscriptions.ProductColumn")
-                                </th>
-                            </tr>
+                                <tr>
+                                    <th class="select-boxes">
+                                        <input type="checkbox" id="selectall" />
+                                    </th>
+                                    <th class="product">
+                                        @T("Account.BackInStockSubscriptions.ProductColumn")
+                                    </th>
+                                </tr>
                             </thead>
                             <tbody>
-                            @for (var i = 0; i < Model.Subscriptions.Count; i++)
-                            {
-                                var item = Model.Subscriptions[i];
-                                <tr @(i % 2 == 0 ? Html.Raw(" class=\"odd\"") : Html.Raw(" class=\"even\""))>
-                                    <td class="select-boxes">
-                                        <input type="checkbox" name="biss@(item.Id)" class="rowcheckbox" />
-                                    </td>
-                                    <td class="product">
-                                        <a href="@(Url.RouteUrl<Product>(new { SeName = item.SeName }))">@item.ProductName</a>
-                                    </td>
-                                </tr>
-                            }
+                                @for (var i = 0; i < Model.Subscriptions.Count; i++)
+                                {
+                                    var item = Model.Subscriptions[i];
+                                    <tr @(i % 2 == 0 ? Html.Raw(" class=\"odd\"") : Html.Raw(" class=\"even\""))>
+                                        <td class="select-boxes">
+                                            <input type="checkbox" name="biss@(item.Id)" class="rowcheckbox" />
+                                        </td>
+                                        <td class="product">
+                                            @if (item.ProductName.Length < 11)
+                                            {
+                                                <a href="@(Url.RouteUrl<Product>(new { SeName = item.ProductSeName }))">@item.ProductName.Substring(0,item.ProductName.Length)</a>
+                                            }
+                                            else
+                                            {
+                                                var pname = item.ProductName;
+                                                var ProductName = pname.Substring(0, 11);
+                                                <a href="@(Url.RouteUrl<Product>(new { SeName = item.ProductSeName }))">@ProductName...</a>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
                             </tbody>
                         </table>
                     </div>
