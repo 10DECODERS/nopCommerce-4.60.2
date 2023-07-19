@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Azure.Storage.Blobs.Models;
 using DocumentFormat.OpenXml.Wordprocessing;
+using LinqToDB;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -95,7 +96,7 @@ namespace Nop.Web.Areas.Admin.Factories
         /// <returns>A task that represents the asynchronous operation</returns>
         protected virtual async Task<IPagedList<SalesSummaryReportLine>> GetSalesSummaryReportAsync(SalesSummarySearchModel searchModel)
         {
-            //get parameters to filter orders
+            
             var orderStatus = searchModel.OrderStatusId > 0 ? (OrderStatus?)searchModel.OrderStatusId : null;
             var paymentStatus = searchModel.PaymentStatusId > 0 ? (PaymentStatus?)searchModel.PaymentStatusId : null;
 
@@ -119,7 +120,8 @@ namespace Nop.Web.Areas.Admin.Factories
                 manufacturerId: searchModel.ManufacturerId,
                 vendorId: currentVendor?.Id ?? searchModel.VendorId,
                 storeId: searchModel.StoreId,
-                pageIndex: searchModel.Page - 1, pageSize: searchModel.PageSize);
+                pageIndex: searchModel.Page - 1, pageSize: searchModel.PageSize,
+                ordertype : searchModel.OrderType);
 
             return salesSummary;
         }
@@ -182,6 +184,8 @@ namespace Nop.Web.Areas.Admin.Factories
 
             //prepare available order statuses
             await _baseAdminModelFactory.PrepareOrderStatusesAsync(searchModel.AvailableOrderStatuses);
+
+            await _baseAdminModelFactory.PrepareOrderTypesAsync(searchModel.AvailableOrderType);
 
             //prepare available payment statuses
             await _baseAdminModelFactory.PreparePaymentStatusesAsync(searchModel.AvailablePaymentStatuses);
@@ -369,6 +373,8 @@ namespace Nop.Web.Areas.Admin.Factories
                 throw new ArgumentNullException(nameof(searchModel));
             //prepare available vendors
             await _baseAdminModelFactory.PrepareVendorsAsync(searchModel.AvailableVendors);
+
+            await _baseAdminModelFactory.PrepareOrderTypesAsync(searchModel.AvailableOrderType);
             searchModel.SetGridPageSize();
 
             return searchModel;
@@ -408,7 +414,8 @@ namespace Nop.Web.Areas.Admin.Factories
                                  product.Name,
                                  OriginalCost = (orderItem.Quantity * product.Price),
                                  order.CreatedOnUtc,
-                                 PriceDifference = (product.Price - orderItem.OriginalProductCost) * orderItem.Quantity
+                                 PriceDifference = (product.Price - orderItem.OriginalProductCost) * orderItem.Quantity,
+                                 OrderType = order.IsPOSorder
                              };
 
             if (searchModel.Date != null)
@@ -424,9 +431,15 @@ namespace Nop.Web.Areas.Admin.Factories
             if (searchModel.ProductId != 0)
             {
                 result = result.Where(c => c.ProductId == searchModel.ProductId).ToList();
-            }                                                                                      
-
-           
+            }
+            if (searchModel.OrderType.ToLower() == "ispos")
+            {
+                result = result.Where(c => c.OrderType == true).ToList();
+            }
+            if (searchModel.OrderType.ToLower() == "online")
+            {
+                result = result.Where(c => c.OrderType == false).ToList();
+            }
 
 
             // prepare low stock product models

@@ -15,6 +15,7 @@ namespace Nop.Web.Areas.Admin.Models.Reports
         {
             AvailableStores = new List<SelectListItem>();
             AvailableOrderStatuses = new List<SelectListItem>();
+            AvailableOrderType = new List<SelectListItem>();
             AvailablePaymentStatuses = new List<SelectListItem>();
             AvailableCategories = new List<SelectListItem>();
             AvailableManufacturers = new List<SelectListItem>();
@@ -61,6 +62,10 @@ namespace Nop.Web.Areas.Admin.Models.Reports
 
         [NopResourceDisplayName("Admin.Reports.SalesSummary.Vendor")]
         public int VendorId { get; set; }
+        
+        [NopResourceDisplayName("Admin.Reports.SalesSummary.OrderType")]
+        public string OrderType { get; set; }
+
 
         public IList<SelectListItem> AvailableStores { get; set; }
 
@@ -77,6 +82,7 @@ namespace Nop.Web.Areas.Admin.Models.Reports
         public IList<SelectListItem> GroupByOptions { get; set; }
 
         public IList<SelectListItem> AvailableVendors { get; set; }
+        public IList<SelectListItem> AvailableOrderType { get; set; }
 
         public bool IsLoggedInAsVendor { get; set; }
 

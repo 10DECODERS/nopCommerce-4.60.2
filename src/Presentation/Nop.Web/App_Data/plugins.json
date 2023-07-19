@@ -24,10 +24,6 @@
       "Version": "1.00"
     },
     {
-      "SystemName": "Misc.Zettle",
-      "Version": "1.10"
-    },
-    {
       "SystemName": "MultiFactorAuth.GoogleAuthenticator",
       "Version": "1.14"
     },
@@ -94,6 +90,10 @@
     {
       "SystemName": "ExternalAuth.Facebook",
       "Version": "1.80"
+    },
+    {
+      "SystemName": "User Details",
+      "Version": "1.0"
     }
   ],
   "PluginNamesToUninstall": [],

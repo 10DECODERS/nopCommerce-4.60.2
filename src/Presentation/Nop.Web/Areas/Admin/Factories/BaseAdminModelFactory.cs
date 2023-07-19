@@ -1021,6 +1021,33 @@ namespace Nop.Web.Areas.Admin.Factories
             await PrepareDefaultItemAsync(items, withSpecialDefaultItem, defaultItemText, defaultItemValue);
         }
 
+        /// <summary>
+        /// Prepare available order Types
+        /// </summary>
+        /// <param name="items">Order Types items</param>
+        /// <param name="withSpecialDefaultItem">Whether to insert the first special item for the default value</param>
+        /// <param name="defaultItemText">Default item text; pass null to use default value of the default item text</param>
+        /// <returns>A task that represents the asynchronous operation</returns>
+        public virtual async Task PrepareOrderTypesAsync(IList<SelectListItem> items, bool withSpecialDefaultItem = true, string defaultItemText = null)
+        {
+            if (items == null)
+                throw new ArgumentNullException(nameof(items));
+
+            //prepare available order statuses
+            var availableStatusItems = new SelectList(new[]
+                {
+                  new { Value = "IsPOS", Text = "IsPOS" },
+                  new { Value = "Online", Text = "Online" }
+                }, "Value", "Text");
+            foreach (var statusItem in availableStatusItems)
+            {
+                items.Add(statusItem);
+            }
+
+            //insert special item for the default value
+            await PrepareDefaultItemAsync(items, withSpecialDefaultItem, defaultItemText);
+        }
+
         #endregion
     }
 }

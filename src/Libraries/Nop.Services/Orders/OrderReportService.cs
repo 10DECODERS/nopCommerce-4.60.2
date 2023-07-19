@@ -478,7 +478,8 @@ namespace Nop.Services.Orders
             int billingCountryId = 0,
             GroupByOptions groupBy = GroupByOptions.Day,
             int pageIndex = 0,
-            int pageSize = int.MaxValue)
+            int pageSize = int.MaxValue,
+            string ordertype = null)
         {
             int? orderStatusId = null;
             if (os.HasValue)
@@ -503,6 +504,14 @@ namespace Nop.Services.Orders
             //filter by order status
             if (orderStatusId.HasValue)
                 query = query.Where(o => o.OrderStatusId == orderStatusId);
+
+            //filter by order Type
+            if (ordertype.ToLower() == "ispos")
+                query = query.Where(o => o.IsPOSorder == true);
+
+            //filter by order Type
+            if (ordertype.ToLower() == "online")
+                query = query.Where(o => o.IsPOSorder == false);
 
             //filter by payment status
             if (paymentStatusId.HasValue)

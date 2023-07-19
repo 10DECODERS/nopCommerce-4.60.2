@@ -18,6 +18,7 @@ namespace Nop.Web.Areas.Admin.Models.Reports
         public DailySalesProductSearchModel()
         {
             AvailableVendors = new List<SelectListItem>();
+            AvailableOrderType = new List<SelectListItem>();
             
         }
 
@@ -35,7 +36,12 @@ namespace Nop.Web.Areas.Admin.Models.Reports
         [NopResourceDisplayName("Admin.Reports.SalesSummary.Product")]
         public int ProductId { get; set; }
 
+        public string OrderType { get; set; }
+
+
+
         public IList<SelectListItem> AvailableVendors { get; set; }
+        public IList<SelectListItem> AvailableOrderType { get; set; }
 
 
         public bool IsLoggedInAsVendor { get; set; }

@@ -104,7 +104,8 @@ namespace Nop.Services.Orders
             int billingCountryId = 0,
             GroupByOptions groupBy = GroupByOptions.Day,
             int pageIndex = 0,
-            int pageSize = int.MaxValue);
+            int pageSize = int.MaxValue,
+            string ordertype = null);
 
         /// <summary>
         /// Get best sellers report
