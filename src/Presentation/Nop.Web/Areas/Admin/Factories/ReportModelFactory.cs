@@ -21,7 +21,10 @@ using Nop.Services.Directory;
 using Nop.Services.Helpers;
 using Nop.Services.Localization;
 using Nop.Services.Orders;
+using Nop.Services.Shipping;
+using Nop.Web.Areas.Admin.Infrastructure.Mapper.Extensions;
 using Nop.Web.Areas.Admin.Models.Reports;
+using Nop.Web.Areas.Admin.Models.Shipping;
 using Nop.Web.Framework.Models.Extensions;
 
 namespace Nop.Web.Areas.Admin.Factories
@@ -45,9 +48,12 @@ namespace Nop.Web.Areas.Admin.Factories
         private readonly IProductService _productService;
         private readonly IStoreContext _storeContext;
         private readonly IWorkContext _workContext;
+        private readonly IShippingService _shippingService;
         private readonly IRepository<Product> _productRepository;
         private readonly IRepository<OrderItem> _orderItemRepository;
         private readonly IRepository<Order> _orderRepository;
+        private readonly IRepository<Warehouse> _WarehouseRepository;
+
 
 
         #endregion
@@ -67,8 +73,10 @@ namespace Nop.Web.Areas.Admin.Factories
             IProductService productService,
             IStoreContext storeContext,
             IWorkContext workContext,
+            IShippingService shippingService,
             IRepository<OrderItem> orderItemRepository,
-            IRepository<Order> orderRepository
+            IRepository<Order> orderRepository,
+            IRepository<Warehouse> WarehouseRepository
             )
         {
             _baseAdminModelFactory = baseAdminModelFactory;
@@ -84,8 +92,10 @@ namespace Nop.Web.Areas.Admin.Factories
             _productService = productService;
             _storeContext = storeContext;
             _workContext = workContext;
+            _shippingService = shippingService;
             _orderItemRepository = orderItemRepository;
             _orderRepository = orderRepository;
+            _WarehouseRepository = WarehouseRepository;
 
         }
 
@@ -475,6 +485,45 @@ namespace Nop.Web.Areas.Admin.Factories
         }
 
         #endregion
+
+        #region Inventory
+
+
+        public virtual Task<WarehouseSearchModel> PrepareWarehouseSearchModelAsync(WarehouseSearchModel searchModel)
+        {
+            if (searchModel == null)
+                throw new ArgumentNullException(nameof(searchModel));
+
+            //prepare page parameters
+            searchModel.SetGridPageSize();
+
+            return Task.FromResult(searchModel);
+        }
+
+
+
+        public virtual async Task<WarehouseListModel> PrepareWarehouseListModelAsync(WarehouseSearchModel searchModel)
+        {
+            if (searchModel == null)
+                throw new ArgumentNullException(nameof(searchModel));
+
+            //get warehouses
+            var warehouses = (await _shippingService.GetAllWarehousesAsync(
+                name: searchModel.SearchName))
+                .ToPagedList(searchModel);
+
+            //prepare list model
+            var model = new WarehouseListModel().PrepareToGrid(searchModel, warehouses, () =>
+            {
+                //fill in model values from the entity
+                return warehouses.Select(warehouse => warehouse.ToModel<WarehouseModel>());
+            });
+
+            return model;
+        }
+
+        #endregion
+
 
         #region Bestsellers
 

@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Nop.Web.Areas.Admin.Models.Reports;
+using Nop.Web.Areas.Admin.Models.Shipping;
 
 namespace Nop.Web.Areas.Admin.Factories
 {
@@ -80,6 +81,31 @@ namespace Nop.Web.Areas.Admin.Factories
         Task<DailySalesProductListModel> PrepareDailySalesProductListModelAsync(DailySalesProductSearchModel searchModel);
 
         #endregion
+
+        #region InventoryProduct
+
+        /// <summary>
+        /// Prepare warehouse search model
+        /// </summary>
+        /// <param name="searchModel">Warehouse search model</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the warehouse search model
+        /// </returns>
+        Task<WarehouseSearchModel> PrepareWarehouseSearchModelAsync(WarehouseSearchModel searchModel);
+
+        /// <summary>
+        /// Prepare paged warehouse list model
+        /// </summary>
+        /// <param name="searchModel">Warehouse search model</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the warehouse list model
+        /// </returns>
+        Task<WarehouseListModel> PrepareWarehouseListModelAsync(WarehouseSearchModel searchModel);
+
+        #endregion
+
 
         #region Bestseller
 

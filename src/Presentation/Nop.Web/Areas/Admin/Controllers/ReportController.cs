@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Nop.Services.Security;
 using Nop.Web.Areas.Admin.Factories;
 using Nop.Web.Areas.Admin.Models.Reports;
+using Nop.Web.Areas.Admin.Models.Shipping;
 
 namespace Nop.Web.Areas.Admin.Controllers
 {
@@ -13,6 +14,8 @@ namespace Nop.Web.Areas.Admin.Controllers
 
         private readonly IPermissionService _permissionService;
         private readonly IReportModelFactory _reportModelFactory;
+        private readonly IShippingModelFactory _shippingModelFactory;
+
 
         #endregion
 
@@ -20,10 +23,14 @@ namespace Nop.Web.Areas.Admin.Controllers
 
         public ReportController(
             IPermissionService permissionService,
+            IShippingModelFactory shippingModelFactory,
+
             IReportModelFactory reportModelFactory)
         {
             _permissionService = permissionService;
             _reportModelFactory = reportModelFactory;
+            _shippingModelFactory = shippingModelFactory;
+
         }
 
         #endregion
@@ -111,6 +118,34 @@ namespace Nop.Web.Areas.Admin.Controllers
         }
 
         #endregion
+
+        #region Inventory
+
+        public virtual async Task<IActionResult> Warehouses()
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageShippingSettings))
+                return AccessDeniedView();
+
+            //prepare model
+            var model = await _shippingModelFactory.PrepareWarehouseSearchModelAsync(new WarehouseSearchModel());
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public virtual async Task<IActionResult> Warehouses(WarehouseSearchModel searchModel)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageShippingSettings))
+                return await AccessDeniedDataTablesJson();
+
+            //prepare model
+            var model = await _shippingModelFactory.PrepareWarehouseListModelAsync(searchModel);
+
+            return Json(model);
+        }
+
+        #endregion
+
 
         #region Bestsellers
 
