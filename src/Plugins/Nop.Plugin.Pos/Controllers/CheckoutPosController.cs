@@ -40,6 +40,7 @@ using System.Text;
 using System.Reflection.Metadata;
 using System.Text.RegularExpressions;
 using Autofac.Core;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace Nop.Web.Controllers
 {
@@ -494,6 +495,34 @@ namespace Nop.Web.Controllers
                 ordersList.OrderStatus = OrderStatus.Complete;
                 ordersList.PaymentStatus = PaymentStatus.Paid;
                 ordersList.ShippingStatus = ShippingStatus.SelfService;
+
+                var currentVendor = await _workContext.GetCurrentVendorAsync();
+                var ignore = currentVendor != null;
+
+                var orderItems = await _orderService.GetOrderItemsAsync(order.Id, vendorId: currentVendor?.Id ?? 0);
+
+                if (orderItems.Count() > 0)
+                {
+                    foreach (var items in orderItems)
+                    {
+                        var warehouse = await _productService.GetAllProductWarehouseInventoryRecordsAsync(items.ProductId);
+
+                        if (warehouse != null)
+                        {
+                            var warehouse1 = warehouse.Where(c => c.StockQuantity > items.Quantity).FirstOrDefault();
+
+                            if (warehouse1 != null)
+                            {
+                                if (warehouse1.ProductId == items.ProductId)
+                                {
+                                    warehouse1.ReservedQuantity = warehouse1.ReservedQuantity - items.Quantity;
+                                    warehouse1.StockQuantity = warehouse1.StockQuantity - items.Quantity;
+                                    await _productService.UpdateProductWarehouseInventoryAsync(warehouse1);
+                                }
+                            }
+                        }
+                    }
+                }
             }
             ordersList.IsPOSorder = true;
             ordersList.POSUserId = _workContext.GetCurrentCustomerAsync().Result.Email;
