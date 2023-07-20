@@ -104,6 +104,17 @@ namespace Nop.Web.Areas.Admin.Factories
         /// </returns>
         Task<WarehouseListModel> PrepareWarehouseListModelAsync(WarehouseSearchModel searchModel);
 
+        /// <summary>
+        /// Prepare paged warehouse list model
+        /// </summary>
+        /// <param name="searchModel">Warehouse search model</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the warehouse list model
+        /// </returns>
+        Task<WarehouseListModel> PrepareWarehouseProductsListModelAsync(WarehouseSearchModel searchModel);
+
+
         #endregion
 
 
