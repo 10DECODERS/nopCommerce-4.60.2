@@ -14,26 +14,26 @@
 @using Nop.Web.Framework.UI;
 @inject INopHtmlHelper NopHtml;
 <style>
-	.order-details-area {
-		display: flex;
-	}
-	/*iPad Air*/
-	@@media screen and (min-device-width: 820px) and (max-device-width: 1180px) {
-
-		
-		.SpecificationStyle {
-			display:none;
-		}
-	}
-
-	/*iPad Mini*/
-	@@media screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+    .order-details-area {
+        display: flex;
+    }
+    /*iPad Air*/
+    @@media screen and (min-device-width: 820px) and (max-device-width: 1180px) {
 
 
-		.SpecificationStyle {
-			display: none;
-		}
-	}
+        .SpecificationStyle {
+            display: none;
+        }
+    }
+
+    /*iPad Mini*/
+    @@media screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+
+
+        .SpecificationStyle {
+            display: none;
+        }
+    }
 
 </style>
 
@@ -68,7 +68,7 @@
 
             @if (!Model.PdfInvoiceDisabled)
             {
-				<a href="@Url.Action("GetPdfInvoice","CheckoutPos" ,new { orderId = Model.Id })" class="button-2 pdf-invoice-button">PDF Invoice</a>
+                <a href="@Url.Action("GetPdfInvoice","CheckoutPos" ,new { orderId = Model.Id })" class="button-2 pdf-invoice-button">PDF Invoice</a>
 
             }
         </div>
@@ -92,9 +92,9 @@
             </ul>
             @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.OrderDetailsPageOverview, additionalData = Model })
         </div>
-		<div class="order-details-area">
-			<div class="billing-info-wrap">
-				<div class="billing-info">
+        <div class="order-details-area">
+            <div class="billing-info-wrap">
+                <div class="billing-info">
                     <div class="title">
                         <strong>Billing Address</strong>
                     </div>
@@ -258,7 +258,7 @@
             </div>
             @if (Model.IsShippable)
             {
-				<div class="shipping-info-wrap">
+                <div class="shipping-info-wrap">
                     <div class="shipping-info">
                         <div class="title">
                             <strong>@(Model.PickupInStore ? ("Pickup point address") : ("Shipping Address"))</strong>
@@ -544,7 +544,7 @@
                 </div>
             </div>
         }
-        
+
         @if (Model.Items.Count > 0)
         {
             if (!Model.PrintMode && Model.OrderNotes.Count > 0)
@@ -669,19 +669,24 @@
                                         </td>
                                     }
                                     <td class="product">
-										@{
-											var pname = item.ProductName;
-											var testpname = pname.Substring(0, 12);
-										}
-										<a href="@(Url.RouteUrl<Product>(new { SeName = item.ProductSeName }))">@testpname...</a>
+                                        @if (item.ProductName.Length < 11)
+                                        {
+                                            <a href="@(Url.RouteUrl<Product>(new { SeName = item.ProductSeName }))">@item.ProductName.Substring(0,item.ProductName.Length)</a>
+                                        }
+                                        else
+                                        {
+                                            var pname = item.ProductName;
+                                            var ProductName = pname.Substring(0, 11);
+                                            <a href="@(Url.RouteUrl<Product>(new { SeName = item.ProductSeName }))">@ProductName...</a>
+                                        }
 
-										@if (!string.IsNullOrEmpty(item.AttributeInfo))
-										{
+                                        @if (!string.IsNullOrEmpty(item.AttributeInfo))
+                                        {
 
-											<div class="SpecificationStyle">
-												@Html.Raw(item.AttributeInfo)
-											</div>
-										}
+                                            <div class="SpecificationStyle">
+                                                @Html.Raw(item.AttributeInfo)
+                                            </div>
+                                        }
                                         @if (!string.IsNullOrEmpty(item.RentalInfo))
                                         {
                                             <div class="rental-info">
@@ -714,11 +719,11 @@
                                         <span class="product-unit-price">@item.UnitPrice</span>
                                     </td>
                                     <td class="quantity">
-                                        <label class="td-title"  style="font-weight:bold">Qty:</label>
+                                        <label class="td-title" style="font-weight:bold">Qty:</label>
                                         <span class="product-quantity">@item.Quantity</span>
                                     </td>
                                     <td class="total">
-                                        <label class="td-title"  style="font-weight:bold">Total:</label>
+                                        <label class="td-title" style="font-weight:bold">Total:</label>
                                         <span class="product-subtotal">@item.SubTotal</span>
                                     </td>
                                 </tr>

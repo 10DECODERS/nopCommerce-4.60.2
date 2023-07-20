@@ -633,7 +633,18 @@
                                     <td class="product">
                                         @if (!Model.PrintMode)
                                         {
-                                            <em><a href="@(Url.RouteUrl<Product>(new { SeName = item.ProductSeName }))">@item.ProductName</a></em>
+                                            <em>
+                                                @if (item.ProductName.Length < 11)
+                                                {
+                                                    <a href="@(Url.RouteUrl<Product>(new { SeName = item.ProductSeName }))">@item.ProductName.Substring(0,item.ProductName.Length)</a>
+                                                }
+                                                else
+                                                {
+                                                    var pname = item.ProductName;
+                                                    var ProductName = pname.Substring(0, 11);
+                                                    <a href="@(Url.RouteUrl<Product>(new { SeName = item.ProductSeName }))">@ProductName...</a>
+                                                }
+                                            </em>
                                         }
                                         else
                                         {

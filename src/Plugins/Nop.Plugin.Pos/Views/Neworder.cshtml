@@ -144,7 +144,7 @@
                 <div class="col-sm-6">
                     <div id="small-search-box-form" style="display:flex">
 
-                        <input type="text" class="ScantextBox" id="ScanInput"  name="myTextValue" placeholder="Scan"/>
+                        <input type="text" class="ScantextBox" id="ScanInput" name="myTextValue" placeholder="Scan" />
 
                         <button id="ScanButton" onclick="handleChange()" class="Scanstyle">Scan</button>
 
@@ -252,13 +252,16 @@
                                         </td>
                                     }
                                     <td class="product">
-                                        @{
-                                            var pname = item.ProductName;
-                                            var testpname = pname.Substring(0, 12);
+                                        @if (item.ProductName.Length < 11)
+                                        {
+                                            <a href="@(Url.RouteUrl<Product>(new { SeName = item.ProductSeName }))">@item.ProductName.Substring(0,item.ProductName.Length)</a>
                                         }
-                                        <a href="@(Url.RouteUrl<Product>(new { SeName = item.ProductSeName }))">@testpname...</a>
-                                        @*<a href="@(Url.RouteUrl<Product>(new { SeName = item.ProductSeName }))" class="product-name">@item.ProductName</a>*@
-
+                                        else
+                                        {
+                                            var pname = item.ProductName;
+                                            var ProductName = pname.Substring(0, 11);
+                                            <a href="@(Url.RouteUrl<Product>(new { SeName = item.ProductSeName }))">@ProductName...</a>
+                                        }
                                         @if (!string.IsNullOrEmpty(item.AttributeInfo))
                                         {
                                             <div class="SpecificationStyle">
