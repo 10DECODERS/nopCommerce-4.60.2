@@ -424,8 +424,9 @@ namespace Nop.Web.Areas.Admin.Factories
                                  product.Name,
                                  OriginalCost = (orderItem.Quantity * product.Price),
                                  order.CreatedOnUtc,
-                                 PriceDifference = (product.Price - orderItem.OriginalProductCost) * orderItem.Quantity,
-                                 OrderType = order.IsPOSorder
+                                 PriceDifference = ((product.Price - orderItem.OriginalProductCost) * orderItem.Quantity ) - orderItem.DiscountAmountExclTax,
+                                 OrderType = order.IsPOSorder,
+                                 loss =  order.OrderShippingExclTax - order.RefundedAmount - order.OrderTax 
                              };
 
             if (searchModel.Date != null)
@@ -466,7 +467,7 @@ namespace Nop.Web.Areas.Admin.Factories
                     ProductId = result.ProductId,
                     OriginalProductCost = result.OriginalProductCost,
                     VendorId = result.VendorId,
-                    PriceDifference = result.PriceDifference,
+                    PriceDifference =  (result.PriceDifference + result.loss),
                     Quantity = result.Quantity,
                 }).ToListAsync());
 

@@ -567,6 +567,56 @@ namespace Nop.Services.Orders
             var userTimeZone = await _dateTimeHelper.GetCurrentTimeZoneAsync();
             var utcOffsetInMinutes = userTimeZone.BaseUtcOffset.TotalMinutes;
 
+           
+
+            Dictionary<DateTime, decimal> dayWiseProfit = new Dictionary<DateTime, decimal>();
+
+            var ordergroup = (from oq in query
+                              group oq by oq.CreatedOnUtc.AddMinutes(utcOffsetInMinutes).Date into result
+                              select result).ToList();
+
+            if (groupBy == GroupByOptions.Day)
+            {
+                ordergroup = (from oq in query
+                            group oq by oq.CreatedOnUtc.AddMinutes(utcOffsetInMinutes).Date into result
+                            select result).ToList();
+            }
+            if (groupBy == GroupByOptions.Week)
+            {
+                ordergroup = (from oq in query
+                              group oq by oq.CreatedOnUtc.AddMinutes(utcOffsetInMinutes).AddDays(-(int)oq.CreatedOnUtc.AddMinutes(utcOffsetInMinutes).DayOfWeek).Date into result
+                              select result).ToList();
+            }
+            if (groupBy == GroupByOptions.Month)
+            {
+                ordergroup = (from oq in query
+                              group oq by oq.CreatedOnUtc.AddMinutes(utcOffsetInMinutes).AddDays(1 - oq.CreatedOnUtc.AddMinutes(utcOffsetInMinutes).Day).Date into result
+                              select result).ToList();
+            }
+
+            foreach (var dayOrders in ordergroup)
+            {
+                decimal dailyProfit = 0;
+
+                foreach (var order in dayOrders)
+                {
+                    decimal Shippingandrefundamount = order.OrderShippingExclTax - order.RefundedAmount;
+                    var orderItems = _orderItemRepository.Table.Where(oi => oi.OrderId == order.Id);
+
+                    foreach (var item in orderItems)
+                    {
+                        // Calculate the profit for each item in the order
+                        decimal itemProfit = item.PriceExclTax - (item.OriginalProductCost * item.Quantity) - item.DiscountAmountExclTax - Shippingandrefundamount;
+                        dailyProfit += itemProfit;
+                    }
+                }
+                // Store the daily profit in the dictionary with the date as the key
+                dayWiseProfit[dayOrders.Key] = dailyProfit;
+            }
+
+            
+
+
             var items = groupBy switch
             {
                 GroupByOptions.Day => from oq in query
@@ -625,13 +675,7 @@ namespace Nop.Services.Orders
                     SummaryDate = orderItem.SummaryDate,
                     SummaryType = (int)orderItem.OrderSummaryType,
                     NumberOfOrders = orderItem.OrderCount,
-                    Profit = orderItem.OrderTotalSum
-                         - orderItem.OrderShippingExclTaxSum
-                         - orderItem.OrderPaymentFeeExclTaxSum
-                         - orderItem.OrderTaxSum
-                         - orderItem.OrderRefundedAmountSum
-                         - Convert.ToDecimal(orderItem.OrderTotalCost),
-                    Shipping = orderItem.OrderShippingExclTaxSum.ToString(CultureInfo.CurrentCulture),
+                    Profit = dayWiseProfit.GetValueOrDefault(orderItem.SummaryDate),
                     Tax = orderItem.OrderTaxSum.ToString(CultureInfo.CurrentCulture),
                     OrderTotal = orderItem.OrderTotalSum.ToString(CultureInfo.CurrentCulture)
                 };
