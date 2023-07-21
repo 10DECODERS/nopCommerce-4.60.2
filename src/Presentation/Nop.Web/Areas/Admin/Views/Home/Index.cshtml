@@ -76,6 +76,28 @@
                             }
                         </div>
                     }
+
+
+                    @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.DashboardCommonstatisticsAfter, additionalData = Model })
+                    @if (!Model.IsLoggedInAsVendor && (canManageOrders || canManageCustomers))
+                    {
+                        <div class="row">
+                            @if (!Model.IsLoggedInAsVendor && canManageOrders)
+                            {
+                                <div class="col-md-6">
+                                    @await Html.PartialAsync("_SalesSummaryStatistics")
+                                </div>
+                            }
+                            @if (!Model.IsLoggedInAsVendor && canManageCustomers)
+                            {
+                                <div class="col-md-6">
+                                    @await Html.PartialAsync("_DailySalesStatistics")
+                                </div>
+                            }
+                        </div>
+                    }
+
+
                     @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.DashboardCustomerorderchartsAfter, additionalData = Model })
                     @if (!Model.IsLoggedInAsVendor && canManageOrders)
                     {
