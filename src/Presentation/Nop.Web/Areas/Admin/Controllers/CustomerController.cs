@@ -14,8 +14,10 @@ using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Forums;
 using Nop.Core.Domain.Gdpr;
 using Nop.Core.Domain.Messages;
+using Nop.Core.Domain.Orders;
 using Nop.Core.Domain.Tax;
 using Nop.Core.Events;
+using Nop.Data;
 using Nop.Services.Common;
 using Nop.Services.Customers;
 using Nop.Services.ExportImport;
@@ -74,6 +76,9 @@ namespace Nop.Web.Areas.Admin.Controllers
         private readonly IWorkContext _workContext;
         private readonly IWorkflowMessageService _workflowMessageService;
         private readonly TaxSettings _taxSettings;
+        private readonly IRepository<OrderItem> _orderItemRepository;
+        private readonly IRepository<Product> _productRepository;
+        private readonly IRepository<Order> _orderRepository;
 
         #endregion
 
@@ -110,7 +115,11 @@ namespace Nop.Web.Areas.Admin.Controllers
             ITaxService taxService,
             IWorkContext workContext,
             IWorkflowMessageService workflowMessageService,
-            TaxSettings taxSettings)
+            TaxSettings taxSettings,
+            IRepository<OrderItem> orderItemRepository,
+              IRepository<Product> productRepository,
+              IRepository<Order> orderRepository
+            )
         {
             _customerSettings = customerSettings;
             _dateTimeSettings = dateTimeSettings;
@@ -144,6 +153,9 @@ namespace Nop.Web.Areas.Admin.Controllers
             _workContext = workContext;
             _workflowMessageService = workflowMessageService;
             _taxSettings = taxSettings;
+            _orderItemRepository = orderItemRepository;
+            _productRepository= productRepository;
+            _orderRepository= orderRepository;
         }
 
         #endregion
@@ -1452,6 +1464,36 @@ namespace Nop.Web.Areas.Admin.Controllers
             var searchCustomerRoleIds = new[] { (await _customerService.GetCustomerRoleBySystemNameAsync(NopCustomerDefaults.RegisteredRoleName)).Id };
 
             var culture = new CultureInfo((await _workContext.GetWorkingLanguageAsync()).LanguageCulture);
+            var OrderitemValue = (from oi in _orderItemRepository.Table
+                                  select oi).ToList();
+            var products = (from p in _productRepository.Table
+                            select p).ToList();
+            var ordersdetails = (from o in _orderRepository.Table
+                                 select o).ToList();
+
+
+
+            var results = from orderItem in OrderitemValue
+                         join order in ordersdetails on orderItem.OrderId equals order.Id
+                         join product in products on orderItem.ProductId equals product.Id
+                         select new
+                         {
+                             orderItem.Id,
+                             orderItem.OrderId,
+                             orderItem.ProductId,
+                             orderItem.OriginalProductCost,
+                             orderItem.Quantity,
+                             product.VendorId,
+                             product.Name,
+                             OriginalCost = (orderItem.Quantity * product.Price),
+                             order.CreatedOnUtc,
+                             PriceDifference = (product.Price - orderItem.OriginalProductCost) * orderItem.Quantity,
+                             OrderType = order.IsPOSorder
+                         };
+
+            
+
+            int valuetopass = results.Count();
 
             switch (period)
             {
@@ -1464,13 +1506,9 @@ namespace Nop.Web.Areas.Admin.Controllers
                         result.Add(new
                         {
                             date = searchYearDateUser.Date.ToString("Y", culture),
-                            value = (await _customerService.GetAllCustomersAsync(
-                                createdFromUtc: _dateTimeHelper.ConvertToUtcTime(searchYearDateUser, timeZone),
-                                createdToUtc: _dateTimeHelper.ConvertToUtcTime(searchYearDateUser.AddMonths(1), timeZone),
-                                customerRoleIds: searchCustomerRoleIds,
-                                pageIndex: 0,
-                                pageSize: 1, getOnlyTotalCount: true)).TotalCount.ToString()
+                            value = valuetopass
                         });
+                        ;
 
                         searchYearDateUser = searchYearDateUser.AddMonths(1);
                     }
@@ -1485,12 +1523,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                         result.Add(new
                         {
                             date = searchMonthDateUser.Date.ToString("M", culture),
-                            value = (await _customerService.GetAllCustomersAsync(
-                                createdFromUtc: _dateTimeHelper.ConvertToUtcTime(searchMonthDateUser, timeZone),
-                                createdToUtc: _dateTimeHelper.ConvertToUtcTime(searchMonthDateUser.AddDays(1), timeZone),
-                                customerRoleIds: searchCustomerRoleIds,
-                                pageIndex: 0,
-                                pageSize: 1, getOnlyTotalCount: true)).TotalCount.ToString()
+                            value = valuetopass
                         });
 
                         searchMonthDateUser = searchMonthDateUser.AddDays(1);
@@ -1507,12 +1540,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                         result.Add(new
                         {
                             date = searchWeekDateUser.Date.ToString("d dddd", culture),
-                            value = (await _customerService.GetAllCustomersAsync(
-                                createdFromUtc: _dateTimeHelper.ConvertToUtcTime(searchWeekDateUser, timeZone),
-                                createdToUtc: _dateTimeHelper.ConvertToUtcTime(searchWeekDateUser.AddDays(1), timeZone),
-                                customerRoleIds: searchCustomerRoleIds,
-                                pageIndex: 0,
-                                pageSize: 1, getOnlyTotalCount: true)).TotalCount.ToString()
+                            value = valuetopass
                         });
 
                         searchWeekDateUser = searchWeekDateUser.AddDays(1);
