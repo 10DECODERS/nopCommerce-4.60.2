@@ -29,6 +29,14 @@ using Nop.Web.Areas.Admin.Models.Shipping;
 using Nop.Web.Framework.Models.Extensions;
 using static SkiaSharp.HarfBuzz.SKShaper;
 
+using Nop.Web.Areas.Admin.Models.Catalog;
+using Nop.Web.Areas.Admin.Models.Reports;
+using Nop.Web.Areas.Admin.Models.Shipping;
+using Nop.Web.Framework.Models.Extensions;
+using static SkiaSharp.HarfBuzz.SKShaper;
+using Nop.Web.Areas.Admin.Models.Catalog;
+using DocumentFormat.OpenXml.Bibliography;
+
 namespace Nop.Web.Areas.Admin.Factories
 {
     /// <summary>
@@ -553,9 +561,116 @@ namespace Nop.Web.Areas.Admin.Factories
             var model = new WarehouseListModel().PrepareToGrid(searchModel, pagesList, () => pagesList);
 
             return model;
+        }
+
+
+        public virtual async Task<List<WareHouseProductListModel>> GetProductsAsync_InWarehouse(StockQuantityHistory searchModel)
+        {
+
+            var products_List = (from p in _productRepository.Table
+                                 select p).ToList();
+            var productwarehouses = (from pw in _productWarehouseInventoryRepository.Table
+                                     select pw).ToList();
 
 
 
+
+
+            var products = (from p in _productRepository.Table
+                            select p).ToList();
+
+
+
+
+
+            var warehouses = (from w in _WarehouseRepository.Table
+                              select w).ToList();
+
+
+
+
+
+
+            var result = (from inventory in productwarehouses
+                          join product in products on inventory.ProductId equals product.Id
+                          join warehouse in warehouses on inventory.WarehouseId equals warehouse.Id
+                          select new
+                          {
+                              ProductId = product.Id,
+                              ProductName = product.Name,
+                              WarehouseId = warehouse.Id,
+                              WarehouseName = warehouse.Name,
+                              StcokQuantity = inventory.StockQuantity,
+                              SKUId = product.Sku
+                          }).ToList();
+
+
+
+            var result_ProductWarehouse = result.Where(e => e.WarehouseId == searchModel.Id);
+
+
+
+            var productslist = (from p in _productRepository.Table
+                                select p).Where(e => e.WarehouseId == searchModel.Id).ToList();
+
+
+
+            var productslistresult = (from product in productslist
+                                      join warehouse in warehouses on product.WarehouseId equals warehouse.Id
+                                      select new
+                                      {
+                                          ProductId = product.Id,
+                                          ProductName = product.Name,
+                                          WarehouseId = warehouse.Id,
+                                          WarehouseName = warehouse.Name,
+                                          StcokQuantity = product.StockQuantity,
+                                          SKUId = product.Sku
+                                      }).ToList();
+
+
+
+            List<WareHouseProductListModel> resultList = new List<WareHouseProductListModel>();
+            foreach (var item in productslistresult)
+            {
+                var model = new WareHouseProductListModel
+                {
+                    ProductName = item.ProductName,
+                    ProductId = item.ProductId,
+                    WareHouseId = item.WarehouseId,
+                    WareHouseName = item.WarehouseName,
+                    SKU = item.SKUId,
+                    StocKQuantity = item.StcokQuantity
+                };
+                resultList.Add(model);
+            }
+
+
+
+
+            foreach (var item in result_ProductWarehouse)
+            {
+                if ((resultList.Where(e => e.ProductId == item.ProductId)).Count() == 0)
+                {
+                    var model = new WareHouseProductListModel
+                    {
+                        ProductName = item.ProductName,
+                        ProductId = item.ProductId,
+                        WareHouseId = item.WarehouseId,
+                        WareHouseName = item.WarehouseName,
+                        SKU = item.SKUId,
+                        StocKQuantity = item.StcokQuantity
+                    };
+                    resultList.Add(model);
+                }
+            }
+
+
+
+            var listofwarehouse = resultList.ToList();
+
+
+
+            return listofwarehouse;
         }
 
 

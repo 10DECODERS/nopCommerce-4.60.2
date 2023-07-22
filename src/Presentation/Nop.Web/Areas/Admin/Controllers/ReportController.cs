@@ -155,6 +155,22 @@ namespace Nop.Web.Areas.Admin.Controllers
         }
 
 
+        public virtual async Task<IActionResult> WarehouseProductsListID(StockQuantityHistory searchModel)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageShippingSettings))
+                return await AccessDeniedDataTablesJson();
+
+
+
+            //prepare model
+            var model = await _reportModelFactory.GetProductsAsync_InWarehouse(searchModel);
+
+
+
+            return View(model);
+
+        }
+
 
 
 

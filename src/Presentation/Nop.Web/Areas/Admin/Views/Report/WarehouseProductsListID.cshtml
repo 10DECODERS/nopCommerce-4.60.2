@@ -1,0 +1,250 @@
+﻿@model List<Nop.Web.Areas.Admin.Models.Reports.WareHouseProductListModel>
+
+
+
+
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Reports.DailySales").Text;
+    NopHtml.SetActiveMenuItemSystemName("Daily Sales");
+}
+
+
+
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@*we remove the default InputTagHelper to prevent the checkbox duplicating: https://stackoverflow.com/questions/42544961/asp-net-core-custom-input-tag-helper-rendering-duplicate-checkboxes*@
+@removeTagHelper Microsoft.AspNetCore.Mvc.TagHelpers.InputTagHelper, Microsoft.AspNetCore.Mvc.TagHelpers
+@addTagHelper *, Nop.Web.Framework
+@addTagHelper *, MiniProfiler.AspNetCore.Mvc
+
+
+
+@{
+    const string hideSearchBlockAttributeName = "LowStockPage.HideSearchBlock";
+    var hideSearchBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideSearchBlockAttributeName);
+}
+<style>
+    .table-striped tr th {
+        background-color: #f2f2f2;
+    }
+
+
+
+    .record {
+        text-align: center;
+        padding: 1%;
+    }
+
+
+
+    .card-default {
+        padding: 20px;
+    }
+
+
+
+    .dataTables_length {
+        display: none;
+    }
+
+
+
+    .form-control-sm {
+        display: none;
+    }
+
+
+
+    #myTable td {
+        text-align: left;
+    }
+
+
+
+    .dataTables_info {
+        text-align: left;
+    }
+
+
+
+    .dataTables_filter {
+        display: none;
+    }
+</style>
+
+
+
+<form asp-controller="Report" asp-action="WarehouseProductsListID" method="post">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            Product List in this Warehouse
+        </h1>
+        <div class="float-right">
+            &nbsp;
+        </div>
+    </div>
+
+
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="form-horizontal">
+                <div class="cards-group">
+                    <div class="card card-default card-search">
+                        <div class="card-body">
+                            <div class="card card-default">
+
+
+
+                                <div class="card-body">
+                                    <div class="row search-row @(!hideSearchBlock ? "opened" : "")" data-hideAttribute="@hideSearchBlockAttributeName">
+                                        <div class="search-text">@T("Search")</div>
+                                        <div class="icon-search"><i class="fas fa-search" aria-hidden="true"></i></div>
+                                        <div class="icon-collapse"><i class="far fa-angle-@(!hideSearchBlock ? "up" : "down")" aria-hidden="true"></i></div>
+                                    </div>
+
+
+
+                                    <div class="search-body @(hideSearchBlock ? "closed" : "")">
+                                        <div class="row">
+                                            <div class="col-md-5">
+
+
+
+                                                <div class="form-group row">
+                                                    <div class="col-md-4" class="col-form-label">
+                                                        <nop-label>Product Name</nop-label>
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                        <input type="text" id="product-search" placeholder="Search by Product Name" autocomplete="off" class="form-control" />
+                                                        <span id="search-product-friendly-name"></span>
+                                                        @*<button type="button" id="search-product-clear" class="btn bg-gray" style="display: none; margin-top: 5px;">@T("Admin.Common.Clear")</button>*@
+                                                        <input autocomplete="off" style="display: none;" />
+
+
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                @*<div class="col-md-8 offset-md-4">
+                                                <button type="button" id="search-products" class="btn btn-primary btn-search">
+                                                <i class="fas fa-search"></i>
+                                                @T("Admin.Common.Search")
+                                                </button>
+                                                </div>*@
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+
+                                @if (Model.Count() != 0)
+                                {
+                                    <div>
+                                        <div style="text-align: center">
+                                            <table class="table table-striped" id="myTable">
+                                                <thead>
+                                                    <tr class="border border-1 cart-header-row">
+                                                        <th>
+                                                            Product Id
+                                                        </th>
+                                                        <th>
+                                                            Product Name
+                                                        </th>
+                                                        <th>
+                                                            SKU
+                                                        </th>
+                                                        <th>
+                                                            Stock Quantity
+                                                        </th>
+
+
+
+
+                                                    </tr>
+                                                </thead>
+
+
+
+                                                <tbody id="search-results">
+                                                    @foreach (var product in Model)
+                                                    {
+                                                        <tr class="border border-1 cart-header-row">
+                                                            <td>
+                                                                @product.ProductId
+                                                            </td>
+                                                            <td>
+                                                                @product.ProductName
+                                                            </td>
+                                                            <td>
+                                                                @product.SKU
+                                                            </td>
+                                                            <td>
+                                                                @product.StocKQuantity
+                                                            </td>
+
+
+
+                                                        </tr>
+                                                    }
+
+
+
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <p class="record">No Records Found</p>
+                                }
+
+
+
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </section>
+</form>
+
+
+
+<script>
+    function searchProducts() {
+        var searchTerm = $('#product-search').val().toLowerCase();
+        $('#search-results tr').each(function () {
+            var productName = $(this).find('td:eq(1)').text().toLowerCase(); // Assuming ProductName is in the second column
+            if (searchTerm === '' || productName.includes(searchTerm)) {
+                $(this).show();
+            }
+        });
+    }
+    // Trigger search on input change
+    //$('#product-search').on('input', function () {
+    //    searchProducts();
+    //});
+</script>
+
+
+
+<script>
+    $(document).ready(function () {
+        // Initialize DataTable with search functionality
+        var dataTable = $('#myTable').DataTable();
+
+
+
+        // Bind DataTable search to the custom search input
+        $('#product-search').on('keyup', function () {
+            dataTable.search($(this).val()).draw();
+        });
+    });
+</script>
