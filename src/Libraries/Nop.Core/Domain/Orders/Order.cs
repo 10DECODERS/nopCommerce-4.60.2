@@ -20,6 +20,8 @@ namespace Nop.Core.Domain.Orders
 
         public bool IsPOSorder { get; set; } = false;
 
+        public bool IsWareHouseorder { get; set; } = false;
+
         public string POSUserId { get; set; }
 
         /// <summary>

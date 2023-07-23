@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DocumentFormat.OpenXml.EMMA;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
@@ -32,6 +33,7 @@ using Nop.Web.Areas.Admin.Models.Reports;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Mvc;
 using Nop.Web.Framework.Mvc.Filters;
+using Org.BouncyCastle.Crypto.Engines;
 
 namespace Nop.Web.Areas.Admin.Controllers
 {
@@ -1234,6 +1236,36 @@ namespace Nop.Web.Areas.Admin.Controllers
             SaveSelectedCardName("order-billing-shipping");
 
             return RedirectToAction("Edit", new { id = order.Id });
+        }
+
+        public async Task<IActionResult> EditWarehosuse(int id)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageOrders))
+                return AccessDeniedView();
+
+            var order = await _orderService.GetOrderByIdAsync(id);
+            if (order == null)
+                return RedirectToAction("List");
+
+            order.IsWareHouseorder = true;
+            await _orderService.UpdateOrderAsync(order);
+
+            return RedirectToAction("Edit", new { id = id });
+        }
+
+        public async Task<IActionResult> EditWarehosuseOrder(int id)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageOrders))
+                return AccessDeniedView();
+
+            var order = await _orderService.GetOrderByIdAsync(id);
+            if (order == null)
+                return RedirectToAction("List");
+
+            order.IsWareHouseorder = false;
+            await _orderService.UpdateOrderAsync(order);
+
+            return RedirectToAction("Edit", new { id = id });
         }
 
         [HttpPost, ActionName("Edit")]

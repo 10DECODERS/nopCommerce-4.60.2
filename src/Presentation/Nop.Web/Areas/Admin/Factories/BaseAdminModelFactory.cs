@@ -1037,7 +1037,8 @@ namespace Nop.Web.Areas.Admin.Factories
             var availableStatusItems = new SelectList(new[]
                 {
                   new { Value = "IsPOS", Text = "IsPOS" },
-                  new { Value = "Online", Text = "Online" }
+                  new { Value = "Online", Text = "Online" },
+                  new { Value = "Iswarehouse", Text = "IsWareHouse" }
                 }, "Value", "Text");
             foreach (var statusItem in availableStatusItems)
             {

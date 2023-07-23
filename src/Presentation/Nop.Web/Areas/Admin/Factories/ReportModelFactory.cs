@@ -426,7 +426,9 @@ namespace Nop.Web.Areas.Admin.Factories
                                  order.CreatedOnUtc,
                                  PriceDifference = ((product.Price - orderItem.OriginalProductCost) * orderItem.Quantity ) - orderItem.DiscountAmountExclTax,
                                  OrderType = order.IsPOSorder,
-                                 loss =  order.OrderShippingExclTax - order.RefundedAmount - order.OrderTax 
+                                 loss =  order.OrderShippingExclTax - order.RefundedAmount - order.OrderTax,
+                                 IsPosOrder = order.IsPOSorder,
+                                 IsWareHouseOrder = order.IsWareHouseorder
                              };
 
             if (searchModel.Date != null)
@@ -445,11 +447,15 @@ namespace Nop.Web.Areas.Admin.Factories
             }
             if (searchModel.OrderType.ToLower() == "ispos")
             {
-                result = result.Where(c => c.OrderType == true).ToList();
+                result = result.Where(o => o.IsPosOrder == true).ToList();
             }
             if (searchModel.OrderType.ToLower() == "online")
             {
-                result = result.Where(c => c.OrderType == false).ToList();
+                result = result.Where(o => o.IsPosOrder == false && o.IsWareHouseOrder == false).ToList();
+            }
+            if (searchModel.OrderType.ToLower() == "iswarehouse")
+            {
+                result = result.Where(o => o.IsWareHouseOrder == true).ToList();
             }
 
 

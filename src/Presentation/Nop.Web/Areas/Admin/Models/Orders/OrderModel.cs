@@ -36,6 +36,8 @@ namespace Nop.Web.Areas.Admin.Models.Orders
         public bool IsLoggedInAsVendor { get; set; }
         public bool IsPosOrder { get; set; }
 
+        public bool IsWareHouseorder { get; set; }
+
         public bool IsLoggedInAsOtherUser { get; set; }
 
         //identifiers

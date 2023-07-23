@@ -1225,6 +1225,7 @@ namespace Nop.Web.Areas.Admin.Factories
                 model.CustomValues = _paymentService.DeserializeCustomValues(order);
                 model.PickupInStore = order.PickupInStore;
                 model.IsPosOrder = order.IsPOSorder;
+                model.IsWareHouseorder = order.IsWareHouseorder;
 
                 var affiliate = await _affiliateService.GetAffiliateByIdAsync(order.AffiliateId);
                 if (affiliate != null)

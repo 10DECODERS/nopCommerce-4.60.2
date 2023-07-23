@@ -511,7 +511,10 @@ namespace Nop.Services.Orders
 
             //filter by order Type
             if (ordertype.ToLower() == "online")
-                query = query.Where(o => o.IsPOSorder == false);
+                query = query.Where(o => o.IsPOSorder == false && o.IsWareHouseorder == false);
+
+            if (ordertype.ToLower() == "iswarehouse")
+                query = query.Where(o => o.IsWareHouseorder == true);
 
             //filter by payment status
             if (paymentStatusId.HasValue)
