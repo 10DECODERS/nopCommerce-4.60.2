@@ -7,6 +7,7 @@ using DocumentFormat.OpenXml.Wordprocessing;
 using LinqToDB;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Core;
 using Nop.Core.Domain.Catalog;
@@ -21,11 +22,21 @@ using Nop.Services.Directory;
 using Nop.Services.Helpers;
 using Nop.Services.Localization;
 using Nop.Services.Orders;
+using Nop.Services.Security;
 using Nop.Services.Shipping;
 using Nop.Web.Areas.Admin.Infrastructure.Mapper.Extensions;
 using Nop.Web.Areas.Admin.Models.Reports;
 using Nop.Web.Areas.Admin.Models.Shipping;
 using Nop.Web.Framework.Models.Extensions;
+using static SkiaSharp.HarfBuzz.SKShaper;
+
+using Nop.Web.Areas.Admin.Models.Catalog;
+using Nop.Web.Areas.Admin.Models.Reports;
+using Nop.Web.Areas.Admin.Models.Shipping;
+using Nop.Web.Framework.Models.Extensions;
+using static SkiaSharp.HarfBuzz.SKShaper;
+using Nop.Web.Areas.Admin.Models.Catalog;
+using DocumentFormat.OpenXml.Bibliography;
 
 namespace Nop.Web.Areas.Admin.Factories
 {
@@ -53,6 +64,7 @@ namespace Nop.Web.Areas.Admin.Factories
         private readonly IRepository<OrderItem> _orderItemRepository;
         private readonly IRepository<Order> _orderRepository;
         private readonly IRepository<Warehouse> _WarehouseRepository;
+        private readonly IRepository<ProductWarehouseInventory> _productWarehouseInventoryRepository;
 
 
 
@@ -76,7 +88,8 @@ namespace Nop.Web.Areas.Admin.Factories
             IShippingService shippingService,
             IRepository<OrderItem> orderItemRepository,
             IRepository<Order> orderRepository,
-            IRepository<Warehouse> WarehouseRepository
+            IRepository<Warehouse> WarehouseRepository,
+            IRepository<ProductWarehouseInventory> productWarehouseInventoryRepository
             )
         {
             _baseAdminModelFactory = baseAdminModelFactory;
@@ -96,7 +109,7 @@ namespace Nop.Web.Areas.Admin.Factories
             _orderItemRepository = orderItemRepository;
             _orderRepository = orderRepository;
             _WarehouseRepository = WarehouseRepository;
-
+            _productWarehouseInventoryRepository= productWarehouseInventoryRepository;
         }
 
         #endregion
@@ -528,6 +541,164 @@ namespace Nop.Web.Areas.Admin.Factories
 
             return model;
         }
+
+        public virtual async Task<WarehouseListModel> PrepareWarehouseProductsListModelAsync(WarehouseSearchModel searchModel)
+        {
+
+            var productwarehouses = (from pw in _productWarehouseInventoryRepository.Table
+                                    select pw).ToList();
+
+            var products = (from p in _productRepository.Table
+                           select p).ToList();
+
+            var warehouses = (from w in _WarehouseRepository.Table
+                             select w).ToList();
+
+
+            var result = from inventory in productwarehouses
+                        join product in products on inventory.ProductId equals product.Id
+                        join warehouse in warehouses on inventory.WarehouseId equals warehouse.Id
+                        select new
+                        {
+                            inventory.WarehouseId,
+                            inventory.StockQuantity,
+                            warehouse.Name
+                        };
+
+            var warehouseModels = new List<WarehouseModel>();
+
+            warehouseModels.AddRange(await result.SelectAwait(async result => new WarehouseModel
+            {
+                WarehouseId = result.WarehouseId,
+                StockQuantity = result.StockQuantity,
+                WarehouseName = result.Name
+            }).ToListAsync());
+
+            var currentCustomer = await _workContext.GetCurrentCustomerAsync();
+            var currentStore = await _storeContext.GetCurrentStoreAsync();
+
+            var pagesList = warehouseModels.ToPagedList(searchModel);
+
+            //prepare list model
+            var model = new WarehouseListModel().PrepareToGrid(searchModel, pagesList, () => pagesList);
+
+            return model;
+        }
+
+
+        public virtual async Task<List<WareHouseProductListModel>> GetProductsAsync_InWarehouse(StockQuantityHistory searchModel)
+        {
+
+            var products_List = (from p in _productRepository.Table
+                                 select p).ToList();
+            var productwarehouses = (from pw in _productWarehouseInventoryRepository.Table
+                                     select pw).ToList();
+
+
+
+
+
+            var products = (from p in _productRepository.Table
+                            select p).ToList();
+
+
+
+
+
+            var warehouses = (from w in _WarehouseRepository.Table
+                              select w).ToList();
+
+
+
+
+
+
+            var result = (from inventory in productwarehouses
+                          join product in products on inventory.ProductId equals product.Id
+                          join warehouse in warehouses on inventory.WarehouseId equals warehouse.Id
+                          select new
+                          {
+                              ProductId = product.Id,
+                              ProductName = product.Name,
+                              WarehouseId = warehouse.Id,
+                              WarehouseName = warehouse.Name,
+                              StcokQuantity = inventory.StockQuantity,
+                              SKUId = product.Sku
+                          }).ToList();
+
+
+
+            var result_ProductWarehouse = result.Where(e => e.WarehouseId == searchModel.Id);
+
+
+
+            var productslist = (from p in _productRepository.Table
+                                select p).Where(e => e.WarehouseId == searchModel.Id).ToList();
+
+
+
+            var productslistresult = (from product in productslist
+                                      join warehouse in warehouses on product.WarehouseId equals warehouse.Id
+                                      select new
+                                      {
+                                          ProductId = product.Id,
+                                          ProductName = product.Name,
+                                          WarehouseId = warehouse.Id,
+                                          WarehouseName = warehouse.Name,
+                                          StcokQuantity = product.StockQuantity,
+                                          SKUId = product.Sku
+                                      }).ToList();
+
+
+
+            List<WareHouseProductListModel> resultList = new List<WareHouseProductListModel>();
+            foreach (var item in productslistresult)
+            {
+                var model = new WareHouseProductListModel
+                {
+                    ProductName = item.ProductName,
+                    ProductId = item.ProductId,
+                    WareHouseId = item.WarehouseId,
+                    WareHouseName = item.WarehouseName,
+                    SKU = item.SKUId,
+                    StocKQuantity = item.StcokQuantity
+                };
+                resultList.Add(model);
+            }
+
+
+
+
+            foreach (var item in result_ProductWarehouse)
+            {
+                if ((resultList.Where(e => e.ProductId == item.ProductId)).Count() == 0)
+                {
+                    var model = new WareHouseProductListModel
+                    {
+                        ProductName = item.ProductName,
+                        ProductId = item.ProductId,
+                        WareHouseId = item.WarehouseId,
+                        WareHouseName = item.WarehouseName,
+                        SKU = item.SKUId,
+                        StocKQuantity = item.StcokQuantity
+                    };
+                    resultList.Add(model);
+                }
+            }
+
+
+
+            var listofwarehouse = resultList.ToList();
+
+
+
+            return listofwarehouse;
+        }
+
+
+
+
+
 
         #endregion
 

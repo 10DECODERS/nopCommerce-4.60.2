@@ -2,6 +2,14 @@
 using Microsoft.AspNetCore.Http;
 using Nop.Web.Areas.Admin.Models.Reports;
 using Nop.Web.Areas.Admin.Models.Shipping;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using DocumentFormat.OpenXml.Office2010.ExcelAc;
+using Microsoft.AspNetCore.Http;
+using Nop.Core.Domain.Catalog;
+using Nop.Web.Areas.Admin.Models.Catalog;
+using Nop.Web.Areas.Admin.Models.Reports;
+using Nop.Web.Areas.Admin.Models.Shipping;
 
 namespace Nop.Web.Areas.Admin.Factories
 {
@@ -104,6 +112,17 @@ namespace Nop.Web.Areas.Admin.Factories
         /// </returns>
         Task<WarehouseListModel> PrepareWarehouseListModelAsync(WarehouseSearchModel searchModel);
 
+        /// <summary>
+        /// Prepare paged warehouse list model
+        /// </summary>
+        /// <param name="searchModel">Warehouse search model</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the warehouse list model
+        /// </returns>
+        Task<WarehouseListModel> PrepareWarehouseProductsListModelAsync(WarehouseSearchModel searchModel);
+
+        Task<List<WareHouseProductListModel>> GetProductsAsync_InWarehouse(StockQuantityHistory searchModel);
         #endregion
 
 

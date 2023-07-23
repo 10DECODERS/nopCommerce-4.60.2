@@ -1,5 +1,7 @@
 ﻿@model WarehouseSearchModel
 
+
+
 @{
     //page title
     ViewBag.PageTitle = "Warehouses";
@@ -7,16 +9,22 @@
     NopHtml.SetActiveMenuItemSystemName("Warehouse");
 }
 
+
+
 @{
     const string hideSearchBlockAttributeName = "WarehousesPage.HideSearchBlock";
     var hideSearchBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideSearchBlockAttributeName);
 }
+
+
 
 <div class="content-header clearfix">
     <h1 class="float-left">
         Warehouses
     </h1>
 </div>
+
+
 
 <section class="content">
     <div class="container-fluid">
@@ -54,9 +62,13 @@
                     </div>
                 </div>
 
+
+
                 <div class="card card-default">
                     <div class="card-body">
                         <nop-doc-reference asp-string-resource="@T("Admin.Documentation.Reference.Warehouses", Docs.Warehouses + Utm.OnAdmin)" />
+
+
 
                         @await Html.PartialAsync("Table", new DataTablesModel
                         {
@@ -76,12 +88,14 @@
                         Title = T("Admin.Configuration.Shipping.Warehouses.Fields.Name").Text
                         },
 
+
+
                         new ColumnProperty(nameof(WarehouseModel.Id))
                         {
                         Title = "View",
                         Width = "100",
                         ClassName =  NopColumnClassDefaults.Button,
-                        Render = new RenderButtonView(new DataUrl("~/Admin/Shipping/EditWarehouse/"))
+                        Render = new RenderButtonView(new DataUrl("~/Admin/Report/WarehouseProductsListID"))
                         }
                         }
                         })

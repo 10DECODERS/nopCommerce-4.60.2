@@ -1,6 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Nop.Core.Domain.Catalog;
+using Nop.Data;
 using Nop.Services.Security;
 using Nop.Web.Areas.Admin.Factories;
 using Nop.Web.Areas.Admin.Models.Reports;
@@ -15,8 +17,6 @@ namespace Nop.Web.Areas.Admin.Controllers
         private readonly IPermissionService _permissionService;
         private readonly IReportModelFactory _reportModelFactory;
         private readonly IShippingModelFactory _shippingModelFactory;
-
-
         #endregion
 
         #region Ctor
@@ -24,13 +24,11 @@ namespace Nop.Web.Areas.Admin.Controllers
         public ReportController(
             IPermissionService permissionService,
             IShippingModelFactory shippingModelFactory,
-
             IReportModelFactory reportModelFactory)
         {
             _permissionService = permissionService;
             _reportModelFactory = reportModelFactory;
             _shippingModelFactory = shippingModelFactory;
-
         }
 
         #endregion
@@ -143,6 +141,38 @@ namespace Nop.Web.Areas.Admin.Controllers
 
             return Json(model);
         }
+
+
+        public virtual async Task<IActionResult> WarehouseProductsList(WarehouseSearchModel searchModel)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageShippingSettings))
+                return await AccessDeniedDataTablesJson();
+
+            //prepare model
+            var model = await _reportModelFactory.PrepareWarehouseProductsListModelAsync(searchModel);
+
+            return View(model);
+        }
+
+
+        public virtual async Task<IActionResult> WarehouseProductsListID(StockQuantityHistory searchModel)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageShippingSettings))
+                return await AccessDeniedDataTablesJson();
+
+
+
+            //prepare model
+            var model = await _reportModelFactory.GetProductsAsync_InWarehouse(searchModel);
+
+
+
+            return View(model);
+
+        }
+
+
+
 
         #endregion
 

@@ -5,7 +5,7 @@ using Nop.Web.Framework.Mvc.ModelBinding;
 namespace Nop.Web.Areas.Admin.Models.Reports
 {
     /// <summary>
-    /// Represents a low stock product model
+    /// Represents a Daily Sales product model
     /// </summary>
     public partial record DailySalesProductModel : BaseNopEntityModel
     {
