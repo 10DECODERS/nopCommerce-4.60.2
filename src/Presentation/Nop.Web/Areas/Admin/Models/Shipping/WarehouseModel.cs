@@ -23,6 +23,9 @@ namespace Nop.Web.Areas.Admin.Models.Shipping
         [NopResourceDisplayName("Admin.Configuration.Shipping.Warehouses.Fields.Name")]
         public string Name { get; set; }
 
+        [NopResourceDisplayName("Is This Warehouse Contains Store Product")]
+        public bool IsStoreProduct { get; set; }
+
         [NopResourceDisplayName("Admin.Configuration.Shipping.Warehouses.Fields.AdminComment")]
         public string AdminComment { get; set; }
 

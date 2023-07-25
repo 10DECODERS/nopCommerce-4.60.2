@@ -507,17 +507,45 @@ namespace Nop.Web.Controllers
                     {
                         var warehouse = await _productService.GetAllProductWarehouseInventoryRecordsAsync(items.ProductId);
 
-                        if (warehouse != null)
+                        if (warehouse.Count() > 0)
                         {
-                            var warehouse1 = warehouse.Where(c => c.StockQuantity > items.Quantity).FirstOrDefault();
-
-                            if (warehouse1 != null)
+                            var warehouseinventory = warehouse.Where(c => c.StockQuantity >= items.Quantity).ToList();
+                            //error
+                            foreach (var item in warehouseinventory)
                             {
-                                if (warehouse1.ProductId == items.ProductId)
+                                if (item != null)
                                 {
-                                    warehouse1.ReservedQuantity = warehouse1.ReservedQuantity - items.Quantity;
-                                    warehouse1.StockQuantity = warehouse1.StockQuantity - items.Quantity;
-                                    await _productService.UpdateProductWarehouseInventoryAsync(warehouse1);
+                                    if (item.ProductId == items.ProductId)
+                                    {
+                                        if (item.ReservedQuantity == items.Quantity)
+                                        {
+                                            item.ReservedQuantity = item.ReservedQuantity - items.Quantity;
+                                            await _productService.UpdateProductWarehouseInventoryAsync(item);
+                                        }
+                                    }
+                                }
+                            }
+
+                            var store = _shippingService.GetAllWarehousesAsync().Result.Where(c => c.IsStoreProduct == true).ToList();
+
+                            foreach(var item in store)
+                            {
+                                var storeinventory = warehouseinventory.Where(c=>c.WarehouseId == item.Id).FirstOrDefault();
+                               
+
+                                if(storeinventory != null)
+                                {
+                                    storeinventory.StockQuantity = storeinventory.StockQuantity - items.Quantity;
+                                    await _productService.UpdateProductWarehouseInventoryAsync(storeinventory);
+                                }
+
+                                var products = await _productService.GetProductByIdAsync(items.Id);
+                                var storeinventory1 = warehouseinventory.Where(c => c.Id == item.Id && c.StockQuantity >= products.MinStockQuantity).ToList();
+
+                                if (storeinventory1.Count() > 0)
+                                {
+                                    products.DisableBuyButton = true;
+                                    await _productService.UpdateProductAsync(products);
                                 }
                             }
                         }
@@ -526,14 +554,11 @@ namespace Nop.Web.Controllers
             }
             ordersList.IsPOSorder = true;
             ordersList.POSUserId = _workContext.GetCurrentCustomerAsync().Result.Email;
-            //var models = await _orderModelFactory.PrepareOrderDetailsModelAsync(ordersList);
-            //var customerid = await _customerService.GetCustomerByEmailAsync(models.BillingAddress.Email);
             ordersList.CustomerId = customerdetails.Id;
             ordersList.BillingAddressId = (int)customerdetails.BillingAddressId;
             var models = await _orderModelFactory.PrepareOrderDetailsModelAsync(ordersList);
             await _orderService.UpdateOrderAsync(ordersList);
 
-            //_httpContextAccessor.HttpContext.Session.Remove("Email");
             return View("~/Plugins/Pos/Views/Details.cshtml", models);
         }
         /// <summary>

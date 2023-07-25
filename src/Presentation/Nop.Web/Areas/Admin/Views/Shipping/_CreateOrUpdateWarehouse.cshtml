@@ -18,6 +18,13 @@
                                 <nop-editor asp-for="Name" asp-required="true" />
                                 <span asp-validation-for="Name"></span>
                             </div>
+                            <div class="col-md-3">
+                                <nop-label asp-for="IsStoreProduct" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="IsStoreProduct" id="warehouseCheckbox" />
+                                <span asp-validation-for="IsStoreProduct"></span>
+                            </div>
                         </div>
                         <nop-editor asp-for="Address" asp-template="Address" />
                         <div class="form-group row">
