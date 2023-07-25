@@ -487,7 +487,7 @@ namespace Nop.Web.Controllers
             if (!ordersList.PickupInStore)
             {
                 ordersList.OrderStatus = OrderStatus.Processing;
-                ordersList.PaymentStatus = PaymentStatus.Paid;
+                ordersList.PaymentStatus = PaymentStatus.Pending;
                 ordersList.ShippingStatus = ShippingStatus.Shipped;
             }
             else
@@ -538,11 +538,17 @@ namespace Nop.Web.Controllers
                                     storeinventory.StockQuantity = storeinventory.StockQuantity - items.Quantity;
                                     await _productService.UpdateProductWarehouseInventoryAsync(storeinventory);
                                 }
+                                else
+                                {
+                                    ordersList.OrderStatus = OrderStatus.Processing;
+                                    ordersList.PaymentStatus = PaymentStatus.Pending;
+                                    ordersList.ShippingStatus = ShippingStatus.Shipped;
+                                }
 
-                                var products = await _productService.GetProductByIdAsync(items.Id);
-                                var storeinventory1 = warehouseinventory.Where(c => c.Id == item.Id && c.StockQuantity >= products.MinStockQuantity).ToList();
+                                var products = await _productService.GetProductByIdAsync(items.ProductId);
+                                var storeinventory1 = warehouseinventory.Where(c => c.WarehouseId == item.Id && c.StockQuantity >= products.MinStockQuantity).ToList();
 
-                                if (storeinventory1.Count() > 0)
+                                if (storeinventory1.Count() == 0)
                                 {
                                     products.DisableBuyButton = true;
                                     await _productService.UpdateProductAsync(products);
