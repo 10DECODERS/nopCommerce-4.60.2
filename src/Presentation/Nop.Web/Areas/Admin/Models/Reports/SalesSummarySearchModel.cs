@@ -63,7 +63,7 @@ namespace Nop.Web.Areas.Admin.Models.Reports
         [NopResourceDisplayName("Admin.Reports.SalesSummary.Vendor")]
         public int VendorId { get; set; }
         
-        [NopResourceDisplayName("Admin.Reports.SalesSummary.OrderType")]
+        [NopResourceDisplayName("OrderType")]
         public string OrderType { get; set; }
 
 

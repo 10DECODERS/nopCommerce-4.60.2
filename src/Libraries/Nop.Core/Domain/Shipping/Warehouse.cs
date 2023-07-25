@@ -1,4 +1,4 @@
-namespace Nop.Core.Domain.Shipping
+﻿namespace Nop.Core.Domain.Shipping
 {
     /// <summary>
     /// Represents a shipment
@@ -9,6 +9,8 @@ namespace Nop.Core.Domain.Shipping
         /// Gets or sets the warehouse name
         /// </summary>
         public string Name { get; set; }
+
+        public bool IsStoreProduct { get; set; }
 
         /// <summary>
         /// Gets or sets the admin comment
