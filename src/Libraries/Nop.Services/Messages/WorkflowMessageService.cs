@@ -2206,7 +2206,20 @@ namespace Nop.Services.Messages
             return await messageTemplates.SelectAwait(async messageTemplate =>
             {
                 //email account
+                var emailAccount_markasDefault = await _emailAccountService.GetEmailAccountByIdAsync(_emailAccountSettings.DefaultEmailAccountId);
                 var emailAccount = await GetEmailAccountOfMessageTemplateAsync(messageTemplate, languageId);
+
+                var sendermail = new MailAddress(emailAccount_markasDefault.Email, emailAccount_markasDefault.DisplayName);
+                var password = emailAccount_markasDefault.Password;
+                var smtp = new SmtpClient
+                {
+                    Host = emailAccount_markasDefault.Host,
+                    Port = emailAccount_markasDefault.Port,
+                    EnableSsl = emailAccount_markasDefault.EnableSsl,
+                    DeliveryMethod = SmtpDeliveryMethod.Network,
+                    UseDefaultCredentials = emailAccount_markasDefault.UseDefaultCredentials,
+                    Credentials = new NetworkCredential(sendermail.Address, password)
+                };
 
                 var tokens = new List<Token>(commonTokens);
                 await _messageTokenProvider.AddStoreTokensAsync(tokens, store, emailAccount);

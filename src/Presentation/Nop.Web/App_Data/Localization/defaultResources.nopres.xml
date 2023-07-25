@@ -14655,6 +14655,10 @@
     <LocaleResource Name="Admin.Reports.DailySales">
     <Value>Daily Sales</Value>
   </LocaleResource>
+    <LocaleResource Name="Admin.Reports.Inventory">
+        <Value>Warehouse Report</Value>
+    </LocaleResource>
+    
   <LocaleResource Name="Admin.Reports.SalesSummary.BillingCountry">
     <Value>Billing country</Value>
   </LocaleResource>
