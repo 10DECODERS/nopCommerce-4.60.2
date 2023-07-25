@@ -2228,6 +2228,15 @@ namespace Nop.Services.Messages
                 await _eventPublisher.MessageTokensAddedAsync(messageTemplate, tokens);
 
                 var (toEmail, toName) = await GetStoreOwnerNameAndEmailAsync(emailAccount);
+                MailAddress receivermail = new MailAddress(toEmail);
+
+
+
+                //Replace subject and body tokens 
+                var subjectReplaced = _tokenizer.Replace(messageTemplate.Subject, tokens, false);
+                var bodyReplaced = _tokenizer.Replace(messageTemplate.Body, tokens, true);
+
+                SendCustomerMailAsync(smtp, sendermail, receivermail, subjectReplaced, bodyReplaced);
 
                 return await SendNotificationAsync(messageTemplate, emailAccount, languageId, tokens, toEmail, toName);
             }).ToListAsync();
