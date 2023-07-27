@@ -308,6 +308,50 @@ namespace Nop.Plugin.Pos.Controllers
             var store = await _storeContext.GetCurrentStoreAsync();
             var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
 
+            if (cart != null)
+            {
+                foreach(var items in cart)
+                {
+                    var warehouse = await _productService.GetAllProductWarehouseInventoryRecordsAsync(items.ProductId);
+                    var product = await _productService.GetProductByIdAsync(items.ProductId);
+                    var productname = product.Name;
+
+                    if (warehouse != null)
+                    {
+                        var storewarehouse = _shippingService.GetAllWarehousesAsync().Result.Where(c => c.IsStoreProduct == true).ToList();
+
+
+                        var storeinventory = (from w in warehouse
+                                              join s in storewarehouse
+                                              on w.WarehouseId equals s.Id
+                                              select w).ToList();
+
+                        if(storeinventory != null)
+                        {
+                            var stock = 0;
+                            foreach (var item in storeinventory)
+                            {
+                                stock = stock + item.StockQuantity;
+                            }
+
+                            if(stock < items.Quantity)
+                            {
+                                //Error - Pos (Only certain products available) & Return New Order screen
+                                var errorMessage = "The available quantity of " + "" + productname + "in store is " + "" + stock;
+                                _notificationService.ErrorNotification(errorMessage, false);
+                                return RedirectToAction("Neworder", "Pos");
+                            }
+                        }
+                        else
+                        {
+                            var errorMessage = productname + "" + "not available in store";
+                            _notificationService.ErrorNotification(errorMessage, false);
+                            return RedirectToAction("Neworder", "Pos");
+                        }
+                    }
+                }
+            }
+
             //parse and save checkout attributes
             await ParseAndSaveCheckoutAttributesAsync(cart, form);
 
@@ -315,13 +359,6 @@ namespace Nop.Plugin.Pos.Controllers
             var checkoutAttributes = await _genericAttributeService.GetAttributeAsync<string>(customer,
                 NopCustomerDefaults.CheckoutAttributes, store.Id);
             var checkoutAttributeWarnings = await _shoppingCartService.GetShoppingCartWarningsAsync(cart, checkoutAttributes, true);
-            //if (checkoutAttributeWarnings.Any())
-            //{
-            //    //something wrong, redisplay the page with warnings
-            //    var model = new ShoppingCartModel();
-            //    model = await _shoppingCartModelFactory.PrepareShoppingCartModelAsync(model, cart, validateCheckoutAttributes: true);
-            //    return View(model);
-            //}
 
             var anonymousPermissed = _orderSettings.AnonymousCheckoutAllowed
                                      && _customerSettings.UserRegistrationType == UserRegistrationType.Disabled;

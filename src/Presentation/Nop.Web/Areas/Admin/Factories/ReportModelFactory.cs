@@ -484,7 +484,7 @@ namespace Nop.Web.Areas.Admin.Factories
                     Name = result.Name,
                     Price = result.OriginalCost,
                     ProductId = result.ProductId,
-                    OriginalProductCost = result.OriginalProductCost,
+                    OriginalProductCost = (result.OriginalProductCost * result.Quantity),
                     VendorId = result.VendorId,
                     PriceDifference =  (result.PriceDifference + result.loss),
                     Quantity = result.Quantity,

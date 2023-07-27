@@ -41,6 +41,7 @@ using System.Reflection.Metadata;
 using System.Text.RegularExpressions;
 using Autofac.Core;
 using DocumentFormat.OpenXml.Spreadsheet;
+using Nop.Services.Messages;
 
 namespace Nop.Web.Controllers
 {
@@ -51,6 +52,7 @@ namespace Nop.Web.Controllers
 
         private readonly AddressSettings _addressSettings;
         private readonly CaptchaSettings _captchaSettings;
+        private readonly INotificationService _notificationService;
         private readonly CustomerSettings _customerSettings;
         private readonly IAddressAttributeParser _addressAttributeParser;
         private readonly IAddressModelFactory _addressModelFactory;
@@ -98,6 +100,7 @@ namespace Nop.Web.Controllers
             CustomerSettings customerSettings,
             IAddressAttributeParser addressAttributeParser,
             IAddressModelFactory addressModelFactory,
+            INotificationService notificationService,
             IAddressService addressService,
             ICheckoutModelFactory checkoutModelFactory,
             ICountryService countryService,
@@ -172,6 +175,7 @@ namespace Nop.Web.Controllers
             _shoppingCartModelFactory = shoppingCartModelFactory;
             _httpContextAccessor = httpContextAccessor;
             _pdfService = pdfService;
+            _notificationService = notificationService;
         }
 
         #endregion
@@ -552,12 +556,6 @@ namespace Nop.Web.Controllers
                                         on w.WarehouseId equals s.Id
                                         select w).ToList();
 
-                            //var storeinventory = warehouses.ToList();
-
-                            //foreach (var item in store)
-                            //{
-                            //    storeinventory = warehouses.Where(c => c.WarehouseId == item.Id).ToList();
-                            //}
 
                             var stock = 0;
                             if (storeinventory != null)
@@ -599,38 +597,26 @@ namespace Nop.Web.Controllers
                                 else
                                 {
                                     // Error - pos (available stock quantity in store is "stock")
+                                    var product = await _productService.GetProductByIdAsync(items.ProductId);
+                                    var productname = product.Name;
+                                    ordersList.OrderStatus = OrderStatus.Processing;
+                                    ordersList.PaymentStatus = PaymentStatus.Pending;
+                                    ordersList.ShippingStatus = ShippingStatus.Shipped;
+                                    var errorMessage = "The order status is processing, the available stock for this " + productname + " is" + stock;
+                                    _notificationService.ErrorNotification(errorMessage, false);
                                 }
                             }
                             else
                             {
                                 // Error - pos (No store available)
+                                var product = await _productService.GetProductByIdAsync(items.ProductId);
+                                var productname = product.Name;
+                                ordersList.OrderStatus = OrderStatus.Processing;
+                                ordersList.PaymentStatus = PaymentStatus.Pending;
+                                ordersList.ShippingStatus = ShippingStatus.Shipped;
+                                var errorMessage = "The order status is processing, " + productname + " is not available in store, it is available only in warehouse";
+                                _notificationService.ErrorNotification(errorMessage, false);
                             }
-                                
-
-
-                            
-
-                            //if(storeinventory != null)
-                            //{
-                            //    storeinventory.StockQuantity = storeinventory.StockQuantity - items.Quantity;
-                            //    await _productService.UpdateProductWarehouseInventoryAsync(storeinventory);
-                            //}
-                            //else
-                            //{
-                            //    ordersList.OrderStatus = OrderStatus.Processing;
-                            //    ordersList.PaymentStatus = PaymentStatus.Pending;
-                            //    ordersList.ShippingStatus = ShippingStatus.Shipped;
-                            //}
-
-                            //var products = await _productService.GetProductByIdAsync(items.ProductId);
-                            //var storeinventory1 = warehouseinventory.Where(c => c.WarehouseId == item.Id && c.StockQuantity >= products.MinStockQuantity).ToList();
-
-                            //if (storeinventory1.Count() == 0)
-                            //{
-                            //    products.DisableBuyButton = true;
-                            //    await _productService.UpdateProductAsync(products);
-                            //}
-                            //}
                         }
                     }
                 }
