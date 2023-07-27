@@ -28,7 +28,7 @@
     <div class="page-body checkout-data">
         @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CheckoutPaymentMethodTop, additionalData = Model })
         <div class="section payment-method">
-            <form asp-route="CheckoutPaymentMethod" method="post">
+            <form id="billing-form" asp-controoler="CheckoutPos" asp-action="OpcSavePaymentMethod" method="post">
                 @if (Model.DisplayRewardPoints && Model.PaymentMethods.Count > 0)
                 {
                     <div class="use-reward-points">

@@ -35,8 +35,8 @@
         <h1>Billing address</h1>
     </div>
     <div class="page-body checkout-data">
-        <form id="billing-form" asp-route="CheckoutBillingAddress" method="post">
-            <div class="billing-addresses">
+        <form id="billing-form" asp-controoler="CheckoutPos" asp-action="OpcSaveBilling" method="post">
+            <div class="billing-addresses"> 
                 <div id="toggle-billing-address">
                     @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CheckoutBillingAddressTop, additionalData = Model })
                     @if (Model.ShipToSameAddressAllowed)
@@ -50,7 +50,7 @@
                     }
                     @if (Model.ExistingAddresses.Count > 0)
                     {
-                        <div class="section select-billing-address" style="display:none">
+                        <div class="section select-billing-address" style="display:none !important">
                             <div class="title">
                                 <strong>Select billing address</strong>
                             </div>

@@ -1820,9 +1820,6 @@ namespace Nop.Web.Controllers
                 if (!cart.Any())
                     throw new Exception("Your cart is empty");
 
-                if (!_orderSettings.OnePageCheckoutEnabled)
-                    throw new Exception("One page checkout is disabled");
-
                 if (await _customerService.IsGuestAsync(customer) && !_orderSettings.AnonymousCheckoutAllowed)
                     throw new Exception("Anonymous checkout is not allowed");
 
@@ -1884,15 +1881,7 @@ namespace Nop.Web.Controllers
                             var billingAddressModel = await _checkoutModelFactory.PrepareBillingAddressModelAsync(cart,
                                 selectedCountryId: newAddress.CountryId);
                             billingAddressModel.NewAddressPreselected = true;
-                            return Json(new
-                            {
-                                update_section = new UpdateSectionJsonModel
-                                {
-                                    name = "billing",
-                                    html = await RenderPartialViewToStringAsync("~/Plugins/Pos/Views/CheckoutPos/OpcBillingAddress.cshtml", billingAddressModel)
-                                },
-                                wrong_billing_address = true,
-                            });
+                            return RedirectToRoute("CheckoutBillingAddressPos");
                     }
                     if (model.BillingNewAddress.Email != null)
                     {
@@ -1903,15 +1892,7 @@ namespace Nop.Web.Controllers
                             var billingAddressModel = await _checkoutModelFactory.PrepareBillingAddressModelAsync(cart,
                                 selectedCountryId: newAddress.CountryId);
                             billingAddressModel.NewAddressPreselected = true;
-                            return Json(new
-                            {
-                                update_section = new UpdateSectionJsonModel
-                                {
-                                    name = "billing",
-                                    html = await RenderPartialViewToStringAsync("~/Plugins/Pos/Views/CheckoutPos/OpcBillingAddress.cshtml", billingAddressModel)
-                                },
-                                wrong_billing_address = true,
-                            });
+                            return RedirectToRoute("CheckoutBillingAddressPos");
                         }
                     }
                     await _customerService.InsertCustomerAsync(customer1);
@@ -1929,15 +1910,7 @@ namespace Nop.Web.Controllers
                         var billingAddressModel = await _checkoutModelFactory.PrepareBillingAddressModelAsync(cart,
                             selectedCountryId: newAddress.CountryId);
                         billingAddressModel.NewAddressPreselected = true;
-                        return Json(new
-                        {
-                            update_section = new UpdateSectionJsonModel
-                            {
-                                name = "billing",
-                                html = await RenderPartialViewToStringAsync("~/Plugins/Pos/Views/CheckoutPos/OpcBillingAddress.cshtml", billingAddressModel)
-                            },
-                            wrong_billing_address = true,
-                        });
+                        return RedirectToRoute("CheckoutBillingAddressPos");
                     }
                     if (model.BillingNewAddress.Email != null)
                     {
@@ -1948,15 +1921,7 @@ namespace Nop.Web.Controllers
                             var billingAddressModel = await _checkoutModelFactory.PrepareBillingAddressModelAsync(cart,
                                 selectedCountryId: newAddress.CountryId);
                             billingAddressModel.NewAddressPreselected = true;
-                            return Json(new
-                            {
-                                update_section = new UpdateSectionJsonModel
-                                {
-                                    name = "billing",
-                                    html = await RenderPartialViewToStringAsync("~/Plugins/Pos/Views/CheckoutPos/OpcBillingAddress.cshtml", billingAddressModel)
-                                },
-                                wrong_billing_address = true,
-                            });
+                            return RedirectToRoute("CheckoutBillingAddressPos");
                         }
                     }
                     customer1.Email = getcustomer.Email;
@@ -2020,15 +1985,7 @@ namespace Nop.Web.Controllers
                             selectedCountryId: newAddress.CountryId,
                             overrideAttributesXml: customAttributes);
                         billingAddressModel.NewAddressPreselected = true;
-                        return Json(new
-                        {
-                            update_section = new UpdateSectionJsonModel
-                            {
-                                name = "billing",
-                                html = await RenderPartialViewToStringAsync("~/Plugins/Pos/Views/CheckoutPos/OpcBillingAddress.cshtml", billingAddressModel)
-                            },
-                            wrong_billing_address = true,
-                        });
+                        return RedirectToRoute("CheckoutBillingAddressPos");
                     }
 
                     //try to find an address with the same values (don't duplicate records)
@@ -2083,23 +2040,17 @@ namespace Nop.Web.Controllers
                         await _genericAttributeService.SaveAttributeAsync<ShippingOption>(customer1, NopCustomerDefaults.SelectedShippingOptionAttribute, null, store.Id);
                         await _genericAttributeService.SaveAttributeAsync<PickupPoint>(customer1, NopCustomerDefaults.SelectedPickupPointAttribute, null, store.Id);
                         //limitation - "Ship to the same address" doesn't properly work in "pick up in store only" case (when no shipping plugins are available) 
-                        return await OpcLoadStepAfterShippingAddress(cart);
+                        //return await OpcLoadStepAfterShippingAddress(cart);
+                        await OpcLoadStepAfterShippingAddress(cart);
+                        return RedirectToRoute("CheckoutShippingMethodPos");
+
                     }
 
                     //do not ship to the same address
                     var shippingAddressModel = await _checkoutModelFactory.PrepareShippingAddressModelAsync(cart, prePopulateNewAddressWithCustomerFields: true);
 
-
-
-                    return Json(new
-                    {
-                        update_section = new UpdateSectionJsonModel
-                        {
-                            name = "shipping",
-                            html = await RenderPartialViewToStringAsync("~/Plugins/Pos/Views/CheckoutPos/OpcShippingAddress.cshtml", shippingAddressModel)
-                        },
-                        goto_section = "shipping"
-                    });
+                    return RedirectToRoute("CheckoutShippingAddressPos");
+                    
                 }
 
                 //shipping is not required
@@ -2131,9 +2082,6 @@ namespace Nop.Web.Controllers
 
                 if (!cart.Any())
                     throw new Exception("Your cart is empty");
-
-                if (!_orderSettings.OnePageCheckoutEnabled)
-                    throw new Exception("One page checkout is disabled");
 
                 if (await _customerService.IsGuestAsync(customer) && !_orderSettings.AnonymousCheckoutAllowed)
                     throw new Exception("Anonymous checkout is not allowed");
@@ -2189,14 +2137,7 @@ namespace Nop.Web.Controllers
                             selectedCountryId: newAddress.CountryId,
                             overrideAttributesXml: customAttributes);
                         shippingAddressModel.NewAddressPreselected = true;
-                        return Json(new
-                        {
-                            update_section = new UpdateSectionJsonModel
-                            {
-                                name = "shipping",
-                                html = await RenderPartialViewToStringAsync("~/Plugins/Pos/Views/CheckoutPos/OpcShippingAddress.cshtml", shippingAddressModel)
-                            }
-                        });
+                        return RedirectToRoute("CheckoutShippingAddressPos");
                     }
 
                     //try to find an address with the same values (don't duplicate records)
@@ -2223,7 +2164,9 @@ namespace Nop.Web.Controllers
                     await _customerService.UpdateCustomerAsync(customer);
                 }
 
-                return await OpcLoadStepAfterShippingAddress(cart);
+                await OpcLoadStepAfterShippingAddress(cart);
+
+                return RedirectToRoute("CheckoutShippingMethodPos");
             }
             catch (Exception exc)
             {
@@ -2248,8 +2191,8 @@ namespace Nop.Web.Controllers
                 if (!cart.Any())
                     throw new Exception("Your cart is empty");
 
-                if (!_orderSettings.OnePageCheckoutEnabled)
-                    throw new Exception("One page checkout is disabled");
+                //if (!_orderSettings.OnePageCheckoutEnabled)
+                //    throw new Exception("One page checkout is disabled");
 
                 if (await _customerService.IsGuestAsync(customer) && !_orderSettings.AnonymousCheckoutAllowed)
                     throw new Exception("Anonymous checkout is not allowed");
@@ -2266,7 +2209,8 @@ namespace Nop.Web.Controllers
                         var pickupOption = await ParsePickupOptionAsync(cart, form);
                         await SavePickupOptionAsync(pickupOption);
 
-                        return await OpcLoadStepAfterShippingMethod(cart);
+                        await OpcLoadStepAfterShippingMethod(cart);
+                        return RedirectToRoute("CheckoutPaymentMethodPos");
                     }
 
                     //set value indicating that "pick up in store" option has not been chosen
@@ -2308,7 +2252,8 @@ namespace Nop.Web.Controllers
                 await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.SelectedShippingOptionAttribute, shippingOption, store.Id);
 
                 //load next step
-                return await OpcLoadStepAfterShippingMethod(cart);
+                await OpcLoadStepAfterShippingMethod(cart);
+                return RedirectToRoute("CheckoutPaymentMethodPos");
             }
             catch (Exception exc)
             {
@@ -2322,9 +2267,9 @@ namespace Nop.Web.Controllers
         {
             try
             {
-                //validation
-                if (_orderSettings.CheckoutDisabled)
-                    throw new Exception(await _localizationService.GetResourceAsync("Checkout.Disabled"));
+                ////validation
+                //if (_orderSettings.CheckoutDisabled)
+                //    throw new Exception(await _localizationService.GetResourceAsync("Checkout.Disabled"));
 
                 var customer = await _workContext.GetCurrentCustomerAsync();
                 var store = await _storeContext.GetCurrentStoreAsync();
@@ -2333,8 +2278,8 @@ namespace Nop.Web.Controllers
                 if (!cart.Any())
                     throw new Exception("Your cart is empty");
 
-                if (!_orderSettings.OnePageCheckoutEnabled)
-                    throw new Exception("One page checkout is disabled");
+                //if (!_orderSettings.OnePageCheckoutEnabled)
+                //    throw new Exception("One page checkout is disabled");
 
                 if (await _customerService.IsGuestAsync(customer) && !_orderSettings.AnonymousCheckoutAllowed)
                     throw new Exception("Anonymous checkout is not allowed");
@@ -2360,15 +2305,8 @@ namespace Nop.Web.Controllers
                         NopCustomerDefaults.SelectedPaymentMethodAttribute, null, store.Id);
 
                     var confirmOrderModel = await _checkoutModelFactory.PrepareConfirmOrderModelAsync(cart);
-                    return Json(new
-                    {
-                        update_section = new UpdateSectionJsonModel
-                        {
-                            name = "confirm-order",
-                            html = await RenderPartialViewToStringAsync("~/Plugins/Pos/Views/CheckoutPos/OpcConfirmOrder.cshtml", confirmOrderModel)
-                        },
-                        goto_section = "confirm_order"
-                    });
+                    return RedirectToRoute("CheckoutPaymentMethodPos");
+                    
                 }
 
                 var paymentMethodInst = await _paymentPluginManager
@@ -2380,7 +2318,9 @@ namespace Nop.Web.Controllers
                 await _genericAttributeService.SaveAttributeAsync(customer,
                     NopCustomerDefaults.SelectedPaymentMethodAttribute, paymentmethod, store.Id);
 
-                return await OpcLoadStepAfterPaymentMethod(paymentMethodInst, cart);
+                await OpcLoadStepAfterPaymentMethod(paymentMethodInst, cart);
+                return RedirectToRoute("CheckoutPaymentInfoPos");
+                
             }
             catch (Exception exc)
             {
@@ -2395,9 +2335,9 @@ namespace Nop.Web.Controllers
         {
             try
             {
-                //validation
-                if (_orderSettings.CheckoutDisabled)
-                    throw new Exception(await _localizationService.GetResourceAsync("Checkout.Disabled"));
+                ////validation
+                //if (_orderSettings.CheckoutDisabled)
+                //    throw new Exception(await _localizationService.GetResourceAsync("Checkout.Disabled"));
 
                 var customer = await _workContext.GetCurrentCustomerAsync();
                 var store = await _storeContext.GetCurrentStoreAsync();
@@ -2406,8 +2346,8 @@ namespace Nop.Web.Controllers
                 if (!cart.Any())
                     throw new Exception("Your cart is empty");
 
-                if (!_orderSettings.OnePageCheckoutEnabled)
-                    throw new Exception("One page checkout is disabled");
+                //if (!_orderSettings.OnePageCheckoutEnabled)
+                //    throw new Exception("One page checkout is disabled");
 
                 if (await _customerService.IsGuestAsync(customer) && !_orderSettings.AnonymousCheckoutAllowed)
                     throw new Exception("Anonymous checkout is not allowed");
@@ -2432,27 +2372,12 @@ namespace Nop.Web.Controllers
                     HttpContext.Session.Set("OrderPaymentInfo", paymentInfo);
 
                     var confirmOrderModel = await _checkoutModelFactory.PrepareConfirmOrderModelAsync(cart);
-                    return Json(new
-                    {
-                        update_section = new UpdateSectionJsonModel
-                        {
-                            name = "confirm-order",
-                            html = await RenderPartialViewToStringAsync("~/Plugins/Pos/Views/CheckoutPos/OpcConfirmOrder.cshtml", confirmOrderModel)
-                        },
-                        goto_section = "confirm_order"
-                    });
+                    return RedirectToRoute("CheckoutConfirmPos");
                 }
 
                 //If we got this far, something failed, redisplay form
                 var paymenInfoModel = await _checkoutModelFactory.PreparePaymentInfoModelAsync(paymentMethod);
-                return Json(new
-                {
-                    update_section = new UpdateSectionJsonModel
-                    {
-                        name = "payment-info",
-                        html = await RenderPartialViewToStringAsync("~/Plugins/Pos/Views/CheckoutPos/OpcPaymentInfo.cshtml", paymenInfoModel)
-                    }
-                });
+                return RedirectToRoute("CheckoutPaymentInfoPos");
             }
             catch (Exception exc)
             {
@@ -2480,9 +2405,9 @@ namespace Nop.Web.Controllers
                 //captcha validation for guest customers
                 if (!isCaptchaSettingEnabled || (isCaptchaSettingEnabled && captchaValid))
                 {
-                    //validation
-                    if (_orderSettings.CheckoutDisabled)
-                        throw new Exception(await _localizationService.GetResourceAsync("Checkout.Disabled"));
+                    ////validation
+                    //if (_orderSettings.CheckoutDisabled)
+                    //    throw new Exception(await _localizationService.GetResourceAsync("Checkout.Disabled"));
 
                     var store = await _storeContext.GetCurrentStoreAsync();
                     var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
@@ -2490,8 +2415,8 @@ namespace Nop.Web.Controllers
                     if (!cart.Any())
                         throw new Exception("Your cart is empty");
 
-                    if (!_orderSettings.OnePageCheckoutEnabled)
-                        throw new Exception("One page checkout is disabled");
+                    //if (!_orderSettings.OnePageCheckoutEnabled)
+                    //    throw new Exception("One page checkout is disabled");
 
                     //if (await _customerService.IsGuestAsync(customer) && !_orderSettings.AnonymousCheckoutAllowed)
                     //    throw new Exception("Anonymous checkout is not allowed");
@@ -2540,10 +2465,7 @@ namespace Nop.Web.Controllers
                             //That's why we don't process it here (we redirect a user to another page where he'll be redirected)
 
                             //redirect
-                            return Json(new
-                            {
-                                redirect = $"{_webHelper.GetStoreLocation()}checkoutPos/OpcCompleteRedirectionPayment"
-                            });
+                            return RedirectToAction("OpcCompleteRedirectionPayment");
                         }
 
                         await _paymentService.PostProcessPaymentAsync(postProcessPaymentRequest);
@@ -2560,15 +2482,7 @@ namespace Nop.Web.Controllers
                     confirmOrderModel.Warnings.Add(await _localizationService.GetResourceAsync("Common.WrongCaptchaMessage"));
                 }
 
-                return Json(new
-                {
-                    update_section = new UpdateSectionJsonModel
-                    {
-                        name = "confirm-order",
-                        html = await RenderPartialViewToStringAsync("~/Plugins/Pos/Views/CheckoutPos/OpcConfirmOrder.cshtml", confirmOrderModel)
-                    },
-                    goto_section = "confirm_order"
-                });
+                return RedirectToRoute("CheckoutConfirmPos");
             }
             catch (Exception exc)
             {
@@ -2581,9 +2495,9 @@ namespace Nop.Web.Controllers
         {
             try
             {
-                //validation
-                if (!_orderSettings.OnePageCheckoutEnabled)
-                    return RedirectToRoute("Homepage");
+                ////validation
+                //if (!_orderSettings.OnePageCheckoutEnabled)
+                //    return RedirectToRoute("Homepage");
 
                 var customer = await _workContext.GetCurrentCustomerAsync();
                 if (await _customerService.IsGuestAsync(customer) && !_orderSettings.AnonymousCheckoutAllowed)

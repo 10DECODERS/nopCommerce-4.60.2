@@ -2,6 +2,8 @@
 @using Nop.Core
 @using Nop.Web.Components;
 @using Nop.Web.Models.Checkout;
+@using Nop.Web.Framework.Infrastructure;
+@using Nop.Web.Framework.UI;
 @model CheckoutShippingAddressModel
 @inject INopHtmlHelper _nopHtmlHelper
 
@@ -31,7 +33,7 @@
         <h1>Shipping address</</h1>
     </div>
     <div class="page-body checkout-data">
-        <form id="shipping-form" asp-route="CheckoutShippingAddress" method="post">
+        <form id="billing-form" asp-controoler="CheckoutPos" asp-action="OpcSaveShipping" method="post">
 
             @if (Model.DisplayPickupInStore && Model.PickupPointsModel.AllowPickupInStore)
             {
@@ -59,7 +61,7 @@
                     @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CheckoutShippingAddressTop, additionalData = Model })
                     @if (Model.ExistingAddresses.Count > 0)
                     {
-                        <div class="section select-shipping-address">
+                        <div class="section select-shipping-address" style="display:none">
                             <div class="title">
                                 <strong>Select shipping address</strong>
                             </div>
@@ -184,14 +186,14 @@
                 @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CheckoutShippingAddressMiddle, additionalData = Model })
                 <div class="section new-shipping-address" id="shippingaddress-new-form">
                     <div class="title">
-                        @if (Model.ExistingAddresses.Count > 0)
-                        {
-                            <strong class="title-text">Or enter new address</strong>
-                        }
-                        else
-                        {
-                            <strong>Enter shipping address</strong>
-                        }
+                        @*@if (Model.ExistingAddresses.Count > 0)
+                    {
+                    <strong class="title-text">Or enter new address</strong>
+                    }
+                    else
+                    {*@
+                        <strong>Enter shipping address</strong>
+                        @*}*@
                     </div>
                     <div class="enter-address">
                         <div asp-validation-summary="ModelOnly" class="message-error"></div>
