@@ -15,8 +15,8 @@
 }
 <style>
     .cophonenumber {
-        width: 400px;
-        height: 36px;
+        width: 100%;
+        height: 45px;
         border: 1px solid #ddd;
         padding: 8px;
         vertical-align: middle;
@@ -45,7 +45,7 @@
                 {
                     <div class="inputs">
                         <label asp-for="PhoneNumber" asp-postfix=":"></label>
-                        <input asp-for="PhoneNumber" id="ScanInput" type="number" class="cophonenumber" maxlength="15" />
+                        <input asp-for="PhoneNumber" id="ScanInput" type="number" class="cophonenumber" maxlength="15" width="100%" height="45px" />
                         <button type="submit" class="search-button" style=" background-color: #f9f9f9; padding: 0px; display: inline-flex; position: absolute; margin-left: 1%; border-radius: 50%; border: 0; " onclick="handleChange()">
                             <svg viewBox="0 0 24 24" style=" color: black; " width="24" height="24">
                                 <path fill="currentColor" d="M20.707 19.293l-4.52-4.52A7.939 7.939 0 0 0 16 10c0-4.411-3.589-8-8-8S0 5.589 0 10s3.589 8 8 8a7.938 7.938 0 0 0 5.773-2.427l4.52 4.52a.998.998 0 1 0 1.414-1.414zM2 10c0-3.309 2.691-6 6-6s6 2.691 6 6-2.691 6-6 6-6-2.691-6-6z" />
@@ -116,27 +116,27 @@
                         <span asp-validation-for="Company"></span>
                     </div>
                 }
-                    <div class="inputs">
-                        <label asp-for="County" asp-postfix=":"></label>
-                        <input asp-for="County" style="display : none " name="countryname" />
-                        <select asp-for="CountryId" asp-items="Model.AvailableCountries"
-                                data-trigger="country-select"
-                                data-url="@(Url.RouteUrl("GetStatesByCountryId"))"
-                                data-stateprovince="#@Html.IdFor(model => model.StateProvinceId)"
-                                data-loading="#states-loading-progress"></select>
-                        @*<nop-required />*@
-                        @*<span asp-validation-for="CountryId"></span>
+                <div class="inputs">
+                    <label asp-for="County" asp-postfix=":"></label>
+                    <input asp-for="County" style="display : none " name="countryname" />
+                    <select asp-for="CountryId" asp-items="Model.AvailableCountries"
+                            data-trigger="country-select"
+                            data-url="@(Url.RouteUrl("GetStatesByCountryId"))"
+                            data-stateprovince="#@Html.IdFor(model => model.StateProvinceId)"
+                            data-loading="#states-loading-progress"></select>
+                    @*<nop-required />*@
+                    @*<span asp-validation-for="CountryId"></span>
                     <span asp-validation-for="County"></span>*@
-                    </div>
+                </div>
 
-                
+
 
                 <div class="inputs">
                     <label asp-for="StateProvinceId" asp-postfix=":"></label>
                     <input type="text" id="StateProvince" style="    height: 36px;
-    border: 1px solid #ddd;
-    padding: 8px;
-    width: 400px; display : none" name="statename" />
+                        border: 1px solid #ddd;
+                        padding: 8px;
+                        width: 400px; display : none" name="statename" />
                     <select asp-for="StateProvinceId" asp-items="Model.AvailableStates"
                             data-trigger="state-select">
                     </select>
