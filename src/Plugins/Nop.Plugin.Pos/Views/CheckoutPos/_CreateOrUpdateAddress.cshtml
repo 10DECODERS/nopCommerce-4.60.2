@@ -133,10 +133,10 @@
 
                 <div class="inputs">
                     <label asp-for="StateProvinceId" asp-postfix=":"></label>
-                    <input type="text" id="StateProvince" style="    height: 36px;
+                    <input type="text" id="StateProvince" style="    height: 45px;
                         border: 1px solid #ddd;
                         padding: 8px;
-                        width: 400px; display : none" name="statename" />
+                        width: 100%; display : none" name="statename" />
                     <select asp-for="StateProvinceId" asp-items="Model.AvailableStates"
                             data-trigger="state-select">
                     </select>
