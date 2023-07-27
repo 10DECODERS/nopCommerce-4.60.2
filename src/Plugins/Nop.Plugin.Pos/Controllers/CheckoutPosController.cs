@@ -509,17 +509,33 @@ namespace Nop.Web.Controllers
 
                         if (warehouse.Count() > 0)
                         {
-                            var warehouseinventory = warehouse.Where(c => c.StockQuantity >= items.Quantity).ToList();
+                            //var warehouseinventory = warehouse.Where(c => c.StockQuantity >= items.Quantity).ToList();
                             //error
-                            foreach (var item in warehouseinventory)
+
+                            var reserveq = items.Quantity;
+                            var purchaseq = items.Quantity;
+
+                            foreach (var item in warehouse)
                             {
                                 if (item != null)
                                 {
-                                    if (item.ProductId == items.ProductId)
+                                    reserveq = purchaseq;
+
+                                    if (purchaseq != 0)
                                     {
-                                        if (item.ReservedQuantity == items.Quantity)
+                                        if (item.StockQuantity > purchaseq)
                                         {
-                                            item.ReservedQuantity = item.ReservedQuantity - items.Quantity;
+                                            item.ReservedQuantity = item.ReservedQuantity - purchaseq;
+                                            await _productService.UpdateProductWarehouseInventoryAsync(item);
+                                            purchaseq = 0;
+                                        }
+                                        else
+                                        {
+                                            purchaseq = reserveq - item.ReservedQuantity;
+
+                                            reserveq = item.ReservedQuantity;
+
+                                            item.ReservedQuantity = item.ReservedQuantity - reserveq;
                                             await _productService.UpdateProductWarehouseInventoryAsync(item);
                                         }
                                     }
@@ -530,12 +546,18 @@ namespace Nop.Web.Controllers
 
                             var store = _shippingService.GetAllWarehousesAsync().Result.Where(c => c.IsStoreProduct == true).ToList();
 
-                            var storeinventory = warehouses.ToList();
 
-                            foreach (var item in store)
-                            {
-                                storeinventory = warehouses.Where(c => c.WarehouseId == item.Id).ToList();
-                            }
+                            var storeinventory = (from w in warehouse
+                                        join s in store
+                                        on w.WarehouseId equals s.Id
+                                        select w).ToList();
+
+                            //var storeinventory = warehouses.ToList();
+
+                            //foreach (var item in store)
+                            //{
+                            //    storeinventory = warehouses.Where(c => c.WarehouseId == item.Id).ToList();
+                            //}
 
                             var stock = 0;
                             if (storeinventory != null)
@@ -548,23 +570,23 @@ namespace Nop.Web.Controllers
                                 if(stock >= items.Quantity)
                                 {
 
-                                    var purchaseq = items.Quantity;
+                                    var storeq = items.Quantity;
 
                                     foreach (var item in storeinventory)
                                     {
-                                        items.Quantity = purchaseq;
+                                        items.Quantity = storeq;
 
-                                        if (purchaseq != 0)
+                                        if (storeq != 0)
                                         {
-                                            if (item.StockQuantity > purchaseq)
+                                            if (item.StockQuantity > storeq)
                                             {
-                                                item.StockQuantity = item.StockQuantity - purchaseq;
+                                                item.StockQuantity = item.StockQuantity - storeq;
                                                 await _productService.UpdateProductWarehouseInventoryAsync(item);
-                                                purchaseq = 0;
+                                                storeq = 0;
                                             }
                                             else
                                             {
-                                                purchaseq = items.Quantity - item.StockQuantity;
+                                                storeq = items.Quantity - item.StockQuantity;
 
                                                 items.Quantity = item.StockQuantity;
 
