@@ -2,12 +2,13 @@
 @using Nop.Services.Customers
 @using Nop.Web.Components;
 @using Nop.Web.Framework.Infrastructure;
+@using Nop.Web.Framework.UI;
 @using Nop.Web.Models.Checkout;
 @model CheckoutBillingAddressModel
 @inject IWebHelper webHelper
 @inject IWorkContext workContext
 @inject ICustomerService _customerService
-@inject INopHtmlHelper _nopHtmlHelper
+@inject INopHtmlHelper _nophtmlhelper
 
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @*we remove the default InputTagHelper to prevent the checkbox duplicating: https://stackoverflow.com/questions/42544961/asp-net-core-custom-input-tag-helper-rendering-duplicate-checkboxes*@
@@ -20,10 +21,10 @@
     var storeLocation = webHelper.GetStoreLocation();
         
     //title
-    _nopHtmlHelper.AddTitleParts("Checkout");
+    _nophtmlhelper.AddTitleParts("Checkout");
     //page class
-    _nopHtmlHelper.AppendPageCssClassParts("html-checkout-page");
-    _nopHtmlHelper.AppendPageCssClassParts("html-billing-address-page");
+    _nophtmlhelper.AppendPageCssClassParts("html-checkout-page");
+    _nophtmlhelper.AppendPageCssClassParts("html-billing-address-page");
 }
 
 <script src="~/js/public.billingaddress.js" asp-location="Footer"></script>
@@ -49,7 +50,7 @@
                     }
                     @if (Model.ExistingAddresses.Count > 0)
                     {
-                        <div class="section select-billing-address">
+                        <div class="section select-billing-address" style="display:none">
                             <div class="title">
                                 <strong>Select billing address</strong>
                             </div>
@@ -64,8 +65,8 @@
                                 {
                                     <div class="address-item">
                                         <div class="address-list-page">
-                                            <button id="edit-button-@(item.Id)" type="button" class="button-2 edit-address-button" onclick="CheckoutBilling.editAddress('@(storeLocation)checkoutPos/GetAddressById/', @(item.Id), 'Edit address'); return false;">Edit</button>
-                                            <button id="delete-button-@(item.Id)" type="button" class="button-2 delete-address-button" onclick="CheckoutBilling.deleteEditAddress('@(storeLocation)checkoutPos/DeleteEditBillingAddress/', @(item.Id)); return false;">Delete</button>
+                                           @* <button id="edit-button-@(item.Id)" type="button" class="button-2 edit-address-button" onclick="CheckoutBilling.editAddress('@(storeLocation)checkoutPos/GetAddressById/', @(item.Id), 'Edit address'); return false;">Edit</button>
+                                            <button id="delete-button-@(item.Id)" type="button" class="button-2 delete-address-button" onclick="CheckoutBilling.deleteEditAddress('@(storeLocation)checkoutPos/DeleteEditBillingAddress/', @(item.Id)); return false;">Delete</button>*@
                                         </div>
                                         <ul class="address-box">
                                             <li class="name">
@@ -184,14 +185,14 @@
                 @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CheckoutBillingAddressMiddle, additionalData = Model })
                 <div class="section new-billing-address" id="billingaddress-new-form">
                     <div class="title">
-                        @if (Model.ExistingAddresses.Count > 0)
+                        @*@if (Model.ExistingAddresses.Count > 0)
                         {
-                            <strong class="title-text">Or enter new address</strong>
+                        <strong class="title-text">Or enter new address</strong>
                         }
                         else
-                        {
-                            <strong>Enter billing address</strong>
-                        }
+                        {*@
+                        <strong>Enter billing address</strong>
+                        @*}*@
                     </div>
                     @if (Model.EuVatEnabled)
                     {

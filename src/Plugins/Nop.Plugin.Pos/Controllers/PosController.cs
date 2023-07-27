@@ -316,7 +316,7 @@ namespace Nop.Plugin.Pos.Controllers
                     var product = await _productService.GetProductByIdAsync(items.ProductId);
                     var productname = product.Name;
 
-                    if (warehouse != null)
+                    if (warehouse.Count() > 0)
                     {
                         var storewarehouse = _shippingService.GetAllWarehousesAsync().Result.Where(c => c.IsStoreProduct == true).ToList();
 
@@ -325,7 +325,6 @@ namespace Nop.Plugin.Pos.Controllers
                                               join s in storewarehouse
                                               on w.WarehouseId equals s.Id
                                               select w).ToList();
-
                         if(storeinventory != null)
                         {
                             var stock = 0;
