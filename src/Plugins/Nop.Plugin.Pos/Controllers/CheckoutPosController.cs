@@ -526,34 +526,89 @@ namespace Nop.Web.Controllers
                                 }
                             }
 
+                            var warehouses = await _productService.GetAllProductWarehouseInventoryRecordsAsync(items.ProductId);
+
                             var store = _shippingService.GetAllWarehousesAsync().Result.Where(c => c.IsStoreProduct == true).ToList();
 
-                            foreach(var item in store)
-                            {
-                                var storeinventory = warehouseinventory.Where(c=>c.WarehouseId == item.Id).FirstOrDefault();
-                               
+                            var storeinventory = warehouses.ToList();
 
-                                if(storeinventory != null)
+                            foreach (var item in store)
+                            {
+                                storeinventory = warehouses.Where(c => c.WarehouseId == item.Id).ToList();
+                            }
+
+                            var stock = 0;
+                            if (storeinventory != null)
+                            {
+                                foreach (var item in storeinventory)
                                 {
-                                    storeinventory.StockQuantity = storeinventory.StockQuantity - items.Quantity;
-                                    await _productService.UpdateProductWarehouseInventoryAsync(storeinventory);
+                                    stock = stock + item.StockQuantity;
+                                }
+
+                                if(stock >= items.Quantity)
+                                {
+
+                                    var purchaseq = items.Quantity;
+
+                                    foreach (var item in storeinventory)
+                                    {
+                                        items.Quantity = purchaseq;
+
+                                        if (purchaseq != 0)
+                                        {
+                                            if (item.StockQuantity > purchaseq)
+                                            {
+                                                item.StockQuantity = item.StockQuantity - purchaseq;
+                                                await _productService.UpdateProductWarehouseInventoryAsync(item);
+                                                purchaseq = 0;
+                                            }
+                                            else
+                                            {
+                                                purchaseq = items.Quantity - item.StockQuantity;
+
+                                                items.Quantity = item.StockQuantity;
+
+                                                item.StockQuantity = item.StockQuantity - items.Quantity;
+                                                await _productService.UpdateProductWarehouseInventoryAsync(item);
+                                            }
+                                        }
+                                    }
                                 }
                                 else
                                 {
-                                    ordersList.OrderStatus = OrderStatus.Processing;
-                                    ordersList.PaymentStatus = PaymentStatus.Pending;
-                                    ordersList.ShippingStatus = ShippingStatus.Shipped;
-                                }
-
-                                var products = await _productService.GetProductByIdAsync(items.ProductId);
-                                var storeinventory1 = warehouseinventory.Where(c => c.WarehouseId == item.Id && c.StockQuantity >= products.MinStockQuantity).ToList();
-
-                                if (storeinventory1.Count() == 0)
-                                {
-                                    products.DisableBuyButton = true;
-                                    await _productService.UpdateProductAsync(products);
+                                    // Error - pos (available stock quantity in store is "stock")
                                 }
                             }
+                            else
+                            {
+                                // Error - pos (No store available)
+                            }
+                                
+
+
+                            
+
+                            //if(storeinventory != null)
+                            //{
+                            //    storeinventory.StockQuantity = storeinventory.StockQuantity - items.Quantity;
+                            //    await _productService.UpdateProductWarehouseInventoryAsync(storeinventory);
+                            //}
+                            //else
+                            //{
+                            //    ordersList.OrderStatus = OrderStatus.Processing;
+                            //    ordersList.PaymentStatus = PaymentStatus.Pending;
+                            //    ordersList.ShippingStatus = ShippingStatus.Shipped;
+                            //}
+
+                            //var products = await _productService.GetProductByIdAsync(items.ProductId);
+                            //var storeinventory1 = warehouseinventory.Where(c => c.WarehouseId == item.Id && c.StockQuantity >= products.MinStockQuantity).ToList();
+
+                            //if (storeinventory1.Count() == 0)
+                            //{
+                            //    products.DisableBuyButton = true;
+                            //    await _productService.UpdateProductAsync(products);
+                            //}
+                            //}
                         }
                     }
                 }
