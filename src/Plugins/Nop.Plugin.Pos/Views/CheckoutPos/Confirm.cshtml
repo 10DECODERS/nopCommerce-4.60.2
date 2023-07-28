@@ -126,7 +126,7 @@
             </form>
         </div>
         @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CheckoutConfirmBottom, additionalData = Model })
-        <div class="section order-summary">
+        <div class="section order-summary" style="display:none">
             @await Component.InvokeAsync(typeof(OrderSummaryViewComponent), new { prepareAndDisplayOrderReviewData = true })
         </div>
     </div>
