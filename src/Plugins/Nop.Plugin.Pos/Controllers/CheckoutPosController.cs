@@ -2515,8 +2515,8 @@ namespace Nop.Web.Controllers
                     .LoadPluginBySystemNameAsync(order.PaymentMethodSystemName, customer, store.Id);
                 if (paymentMethod == null)
                     return RedirectToRoute("Homepage");
-                if (paymentMethod.PaymentMethodType != PaymentMethodType.Redirection)
-                    return RedirectToRoute("Homepage");
+                //if (paymentMethod.PaymentMethodType != PaymentMethodType.Redirection)
+                //    return RedirectToRoute("Homepage");
 
                 //ensure that order has been just placed
                 if ((DateTime.UtcNow - order.CreatedOnUtc).TotalMinutes > 3)

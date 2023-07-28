@@ -203,7 +203,7 @@
                     </div>
                 </div>
 
-                <div class="col-sm-6 searchBtnStyle" style="padding-right: 12%;">
+                <div class="col-sm-6 searchBtnStyle" style="padding-right: 12%;display:none">
                     <div class="search-box" id="small-search-box-form" style="left:50%;">
                         @await Component.InvokeAsync(typeof(SearchBoxViewComponent))
                     </div>
@@ -291,11 +291,14 @@
                                     <td class="product">
                                         @{
                                             var pname = item.ProductName;
-                                            var testpname = pname.Substring(0, 12);
+                                            var namelength = pname.Length;
+                                            if (namelength >= 12)
+                                            {
+                                                pname = pname.Substring(0, 12);
+                                            }
                                         }
-                                        <a href="@(Url.RouteUrl<Product>(new { SeName = item.ProductSeName }))">@testpname...</a>
+                                        <a href="@(Url.RouteUrl<Product>(new { SeName = item.ProductSeName }))">@pname...</a>
                                         @*<a href="@(Url.RouteUrl<Product>(new { SeName = item.ProductSeName }))" class="product-name">@item.ProductName</a>*@
-
                                         @if (!string.IsNullOrEmpty(item.AttributeInfo))
                                         {
                                             <div class="SpecificationStyle">
@@ -398,9 +401,10 @@
                                 }
                                 else
                                 {*@
-                                            @*  <input type="checkbox" name="removefromcart" id="removefromcart@(item.Id)" value="@(item.Id)" aria-label="Remove" />*@
+                                            <input type="checkbox" name="removefromcart" id="removefromcart@(item.Id)" value="@(item.Id)" aria-label="Remove" />
                                             <a type="button" name="updatecart" style="font-size: 25px;
                                                margin-left: 25%;" onclick="$('#removefromcart@(item.Id)').attr('checked', true); $('#updatecart').click();">x</a>
+                                            @*<button type="button" name="updatecart" class="remove-btn" onclick="$('#removefromcart@(item.Id)').attr('checked', true); $('#updatecart').click();"></button>*@
                                             @*}*@
                                         </td>
                                     }
@@ -438,11 +442,6 @@
         </div>
     </form>
 </div>
-
-
-
-
-
 
 <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
 <script>
