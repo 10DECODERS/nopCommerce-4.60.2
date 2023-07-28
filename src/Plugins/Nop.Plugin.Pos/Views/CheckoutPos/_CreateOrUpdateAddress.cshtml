@@ -249,7 +249,18 @@
                     } else {
                         inputField.style.display = "initial"; // show the input field if the flag is false
                     }
-
+                    var inputField = document.getElementById("BillingNewAddress_City-error"); // get a reference to the input field
+                    if (parsedData.posaddress.City != null) {
+                        inputField.style.display = "none"; // hide the input field if the flag is true
+                    }
+                    var inputField = document.getElementById("BillingNewAddress_Address1-error"); // get a reference to the input field
+                    if (parsedData.posaddress.StreetAddress != null) {
+                        inputField.style.display = "none"; // hide the input field if the flag is true
+                    }
+                    var inputField = document.getElementById("ZipInput-error"); // get a reference to the input field
+                    if (parsedData.posaddress.ZipPostalCode != null) {
+                        inputField.style.display = "none"; // hide the input field if the flag is true
+                    }
                     var inputField = document.getElementById("BillingNewAddress_StateProvinceId"); // get a reference to the input field
                     if (parsedData.Country != null) {
                         inputField.style.display = "none"; // hide the input field if the flag is true
@@ -284,18 +295,7 @@
                         var lblError = document.getElementById("emailError");
                         lblError.innerHTML = "";// hide the input field if the flag is true
                     }
-                    var inputField = document.getElementById("BillingNewAddress_City-error"); // get a reference to the input field
-                    if (parsedData.posaddress.City != null) {
-                        inputField.style.display = "none"; // hide the input field if the flag is true
-                    }
-                    var inputField = document.getElementById("BillingNewAddress_Address1-error"); // get a reference to the input field
-                    if (parsedData.posaddress.StreetAddress != null) {
-                        inputField.style.display = "none"; // hide the input field if the flag is true
-                    }
-                    var inputField = document.getElementById("ZipInput-error"); // get a reference to the input field
-                    if (parsedData.posaddress.ZipPostalCode != null) {
-                        inputField.style.display = "none"; // hide the input field if the flag is true
-                    }
+
                 }
                 else {
                     var lblError = document.getElementById("emailError");

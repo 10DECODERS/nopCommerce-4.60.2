@@ -203,7 +203,7 @@
                     </div>
                 </div>
 
-                <div class="col-sm-6 searchBtnStyle">
+                <div class="col-sm-6 searchBtnStyle" style="padding-right: 12%;">
                     <div class="search-box" id="small-search-box-form" style="left:50%;">
                         @await Component.InvokeAsync(typeof(SearchBoxViewComponent))
                     </div>
@@ -365,7 +365,7 @@
                                             }
                                             else
                                             {
-                                                <input name="itemquantity@(item.Id)" id="itemquantity@(item.Id)" type="text" value="@(item.Quantity)" class="qty-input" aria-label="Quantity" />
+                                                <input name="itemquantity@(item.Id)" style="width: 180px;" id="itemquantity@(item.Id)" type="text" value="@(item.Quantity)" class="qty-input" aria-label="Quantity" />
                                             }
                                         }
                                         else
@@ -391,16 +391,17 @@
                                     </td>
                                     @if (Model.IsEditable)
                                     {
-                                        <td class="remove-from-cart">
-                                            @if (item.DisableRemoval)
-                                            {
-                                                <text>&nbsp;</text>
-                                            }
-                                            else
-                                            {
-                                                <input type="checkbox" name="removefromcart" id="removefromcart@(item.Id)" value="@(item.Id)" aria-label="Remove" />
-                                                <a type="button" name="updatecart" class="remove-btn" onclick="$('#removefromcart@(item.Id)').attr('checked', true); $('#updatecart').click();">x</a>
-                                            }
+                                        <td>
+                                            @*@if (item.DisableRemoval)
+                                {
+                                <text>&nbsp;</text>
+                                }
+                                else
+                                {*@
+                                            @*  <input type="checkbox" name="removefromcart" id="removefromcart@(item.Id)" value="@(item.Id)" aria-label="Remove" />*@
+                                            <a type="button" name="updatecart" style="font-size: 25px;
+                                               margin-left: 25%;" onclick="$('#removefromcart@(item.Id)').attr('checked', true); $('#updatecart').click();">x</a>
+                                            @*}*@
                                         </td>
                                     }
                                 </tr>

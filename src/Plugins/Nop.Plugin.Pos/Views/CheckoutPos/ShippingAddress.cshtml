@@ -210,6 +210,8 @@
             <div class="buttons">
                 <button id="shippingaddress-save-button" type="button" class="button-1" style="display: none" onclick="CheckoutShipping.saveEditAddress('@(storeLocation)checkoutPos/SaveEditShippingAddress/'); return false;">Save</button>
 
+                <button type="button" onclick="window.location.href='@(storeLocation)checkoutpos/billingaddress'" class="button-1">Back</button>
+
                 <button id="shippingaddress-cancel-button" type="button" class="button-1" style="display: none" onclick="setLocation('@Url.RouteUrl("CheckoutShippingAddress")')">Cancel</button>
 
                 <button id="shippingaddress-next-button" type="submit" name="nextstep" class="button-1 new-address-next-step-button">Next</button>

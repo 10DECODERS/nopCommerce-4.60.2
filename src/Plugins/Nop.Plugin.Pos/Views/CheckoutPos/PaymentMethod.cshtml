@@ -6,6 +6,9 @@
 
 @inject INopHtmlHelper _nopHtmlHelper
 
+@using Nop.Core
+@inject IWebHelper webHelper
+
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @*we remove the default InputTagHelper to prevent the checkbox duplicating: https://stackoverflow.com/questions/42544961/asp-net-core-custom-input-tag-helper-rendering-duplicate-checkboxes*@
 @removeTagHelper Microsoft.AspNetCore.Mvc.TagHelpers.InputTagHelper, Microsoft.AspNetCore.Mvc.TagHelpers
@@ -13,6 +16,8 @@
 @addTagHelper *, MiniProfiler.AspNetCore.Mvc
 @{
     Layout = "_ColumnsOne";
+
+    var storeLocation = webHelper.GetStoreLocation();
 
     //title
     _nopHtmlHelper.AddTitleParts("Checkout");
@@ -88,6 +93,8 @@
                         }
                     </ul>
                     <div class="buttons">
+                        <button type="button" onclick="window.location.href='@(storeLocation)checkoutpos/shippingmethod'" class="button-1">Back</button>
+
                         <button type="submit" name="nextstep" class="button-1 payment-method-next-step-button">Next</button>
                     </div>
                 }

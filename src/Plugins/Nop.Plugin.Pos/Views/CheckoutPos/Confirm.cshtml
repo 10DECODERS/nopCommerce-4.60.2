@@ -3,8 +3,12 @@
 @using Nop.Web.Components;
 @using Nop.Web.Framework.Infrastructure;
 @using Nop.Web.Framework.UI;
+
 @model CheckoutConfirmModel
 @inject INopHtmlHelper _nopHtmlHelper
+
+@using Nop.Core
+@inject IWebHelper webHelper
 
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @*we remove the default InputTagHelper to prevent the checkbox duplicating: https://stackoverflow.com/questions/42544961/asp-net-core-custom-input-tag-helper-rendering-duplicate-checkboxes*@
@@ -13,7 +17,7 @@
 @addTagHelper *, MiniProfiler.AspNetCore.Mvc
 @{
     Layout = "_ColumnsOne";
-
+    var storeLocation = webHelper.GetStoreLocation();
     //title
     _nopHtmlHelper.AddTitleParts("Checkout");
     //page class
@@ -87,7 +91,11 @@
                         </div>
                     }
                     <div class="buttons">
+
+                        <button type="button" onclick="window.location.href='@(storeLocation)checkoutpos/paymentinfo'" class="button-1">Back</button>
+
                         <button type="submit" name="nextstep" class="button-1 confirm-order-next-step-button">Confirm</button>
+
                     </div>
                     <script asp-location="Footer">
                         $('#confirm-order-form').on('submit',

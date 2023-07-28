@@ -2098,7 +2098,8 @@ namespace Nop.Web.Controllers
                         var pickupOption = await ParsePickupOptionAsync(cart, form);
                         await SavePickupOptionAsync(pickupOption);
 
-                        return await OpcLoadStepAfterShippingMethod(cart);
+                        await OpcLoadStepAfterShippingMethod(cart);
+                        return RedirectToRoute("CheckoutShippingMethodPos");
                     }
 
                     //set value indicating that "pick up in store" option has not been chosen
@@ -2457,7 +2458,7 @@ namespace Nop.Web.Controllers
                         if (paymentMethod == null)
                             //payment method could be null if order total is 0
                             //success
-                            return Json(new { success = 1 });
+                            return RedirectToAction("OpcCompleteRedirectionPayment");
 
                         if (paymentMethod.PaymentMethodType == PaymentMethodType.Redirection)
                         {
@@ -2470,7 +2471,7 @@ namespace Nop.Web.Controllers
 
                         await _paymentService.PostProcessPaymentAsync(postProcessPaymentRequest);
                         //success
-                        return Json(new { success = 1 });
+                        return RedirectToAction("OpcCompleteRedirectionPayment");
                     }
 
                     //error
@@ -2699,5 +2700,36 @@ namespace Nop.Web.Controllers
             // returns true if the input is a valid email
             return Regex.IsMatch(input, @"^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$");
         }
+
+        public async Task<IActionResult> BackToNewOrder()
+        {
+            return RedirectToRoute("Plugin.Pos.Neworder");
+        }
+
+        public async Task<IActionResult> BackToBillingAddress()
+        {
+            return RedirectToRoute("CheckoutBillingAddressPos");
+        }
+        public async Task<IActionResult> BackToShippingAddress()
+        {
+            return RedirectToRoute("CheckoutShippingAddressPos");
+        }
+
+        public async Task<IActionResult> BackToShippingMethod()
+        {
+            return RedirectToRoute("CheckoutShippingMethodPos");
+        }
+
+        public async Task<IActionResult> BackToPaymentMethod()
+        {
+            return RedirectToRoute("CheckoutPaymentMethodPos");
+        }
+
+        public async Task<IActionResult> BackToPaymentInfo()
+        {
+            return RedirectToRoute("CheckoutPaymentInfoPos");
+        }
+
+
     }
 }
